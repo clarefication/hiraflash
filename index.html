@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<!-- saved from url=(0054)file:///Users/Clare/Desktop/Claude/hiragana/index.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hiraflash</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #f8f6f0;
+      --surface:  #ffffff;
+      --surface2: #f0ede4;
+      --border:   #e4dfd2;
+      --primary:  #3563e9;
+      --primary2: #2249c7;
+      --accent:   #f0644b;
+      --green:    #1f9e5d;
+      --yellow:   #d99b2c;
+      --red:      #dc2d2d;
+      --text:     #18160f;
+      --muted:    #9b9487;
+      --radius:   18px;
+    }
+
+    body {
+      font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px 16px 60px;
+    }
+
+    .app { max-width: 500px; margin: 0 auto; }
+
+    /* ── Header ── */
+    .header { text-align: center; margin-bottom: 20px; }
+    .title  { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; }
+    .title em { font-style: normal; color: var(--primary); }
+    .subtitle { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+
+    /* ── Progress ── */
+    .prog-bar-wrap {
+      margin: 14px 0 4px;
+      background: var(--surface2);
+      border-radius: 99px;
+      height: 7px;
+      overflow: hidden;
+    }
+    .prog-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary2), var(--primary));
+      border-radius: 99px;
+      transition: width 0.5s ease;
+    }
+    .prog-label {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.73rem; color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .reset-btn {
+      background: none; border: none;
+      color: var(--muted); font-size: 0.7rem; font-weight: 600;
+      cursor: pointer; padding: 0; font-family: inherit;
+      transition: color 0.15s;
+    }
+    .reset-btn:hover { color: var(--red); }
+
+    /* ── Filter tabs ── */
+    .filter-scroll {
+      display: flex; gap: 6px;
+      overflow-x: auto; padding-bottom: 3px;
+      margin-bottom: 10px;
+      scrollbar-width: none;
+    }
+    .filter-scroll::-webkit-scrollbar { display: none; }
+    .ftab {
+      flex: 0 0 auto;
+      padding: 5px 13px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 0.76rem; font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .ftab:hover  { border-color: var(--primary); color: var(--primary); }
+    .ftab.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+    /* ── Mode toggle ── */
+    .mode-row {
+      display: flex; gap: 0;
+      background: var(--surface2);
+      border-radius: 12px; padding: 4px;
+      margin-bottom: 14px;
+    }
+    .mbtn {
+      flex: 1; padding: 8px;
+      border: none; border-radius: 9px;
+      background: transparent; color: var(--muted);
+      font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .mbtn.active { background: var(--surface); color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+    /* ── FLASHCARD ── */
+    .card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px 22px 22px;
+      position: relative;
+      overflow: hidden;
+      min-height: 350px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 14px;
+      transition: border-color 0.3s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 6px 24px rgba(0,0,0,0.06);
+    }
+    .card.known { border-color: var(--green); }
+    .card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--primary2), var(--accent));
+      border-radius: var(--radius) var(--radius) 0 0;
+      transition: background 0.3s;
+    }
+    .card.known::after { background: var(--green); }
+
+    /* Autoplay strip */
+    .ap-strip {
+      position: absolute;
+      bottom: 0; left: 0;
+      height: 3px;
+      background: var(--primary);
+      width: 0%;
+      border-radius: 0 0 0 var(--radius);
+    }
+
+    .card-meta {
+      width: 100%;
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 10px;
+    }
+    .group-badge {
+      font-size: 0.68rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.6px;
+      padding: 3px 8px; border-radius: 6px;
+      background: var(--surface2); color: var(--primary);
+    }
+    .card.known .group-badge { background: rgba(31,158,93,0.12); color: var(--green); }
+    .ccount { font-size: 0.76rem; color: var(--muted); }
+
+    .hira {
+      font-size: 120px;
+      line-height: 1;
+      margin: 8px 0 6px;
+      text-align: center;
+      /* Force beautiful glyph rendering */
+      font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", sans-serif;
+      text-shadow: 0 6px 24px rgba(53,99,233,0.12);
+      transition: transform 0.15s;
+    }
+
+    .romaji {
+      font-size: 1.45rem; font-weight: 700;
+      letter-spacing: 3px; color: var(--primary);
+      margin-bottom: 12px;
+      transition: filter 0.2s;
+    }
+    .romaji.blurred {
+      filter: blur(6px);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .audio-btn {
+      width: 42px; height: 42px;
+      border-radius: 50%; border: 2px solid var(--border);
+      background: var(--surface2); color: var(--primary);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all 0.18s; margin-bottom: 18px;
+      flex-shrink: 0;
+    }
+    .audio-btn:hover   { background: var(--primary); color: #fff; border-color: var(--primary); transform: scale(1.08); }
+    .audio-btn.playing { background: var(--primary); color: #fff; border-color: var(--primary); animation: pulse 0.5s infinite alternate; }
+    @keyframes pulse { to { transform: scale(1.12); } }
+
+    hr.divider { width: 100%; border: none; border-top: 1px solid var(--border); margin-bottom: 14px; }
+
+    .mnemonic-row { width: 100%; display: flex; gap: 12px; align-items: flex-start; transition: filter 0.2s; }
+    .mnemonic-row.blurred { filter: blur(6px); cursor: pointer; user-select: none; }
+    .m-emoji { font-size: 2.4rem; flex-shrink: 0; line-height: 1; }
+    .m-text { flex: 1; }
+    .m-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 3px; }
+    .m-body  { font-size: 0.88rem; color: #6b6455; line-height: 1.45; }
+
+    /* ── Card controls ── */
+    .card-controls {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 8px; align-items: stretch;
+      margin-bottom: 10px;
+    }
+    .nav-btn {
+      padding: 12px 0;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 0.88rem; font-weight: 600;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+      transition: all 0.15s;
+    }
+    .nav-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .know-btn {
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1.5px solid rgba(31,158,93,0.3);
+      background: rgba(31,158,93,0.07);
+      color: var(--green);
+      font-size: 0.8rem; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
+      white-space: nowrap; text-align: center;
+    }
+    .know-btn:hover  { background: var(--green); color: #fff; border-color: var(--green); }
+    .know-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
+
+    /* Secondary controls */
+    .sec-controls {
+      display: flex; flex-wrap: wrap;
+      gap: 8px; align-items: stretch;
+      margin-bottom: 10px;
+    }
+    .sec-btn {
+      flex: 1 1 28%; min-width: 0;
+      padding: 9px 8px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 0.78rem; font-weight: 600;
+      cursor: pointer; white-space: nowrap;
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+      transition: all 0.15s;
+    }
+    .sec-btn:hover  { border-color: var(--primary); color: var(--primary); }
+    .sec-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .speed-sel {
+      flex: 1 1 28%; min-width: 0;
+      padding: 9px 6px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 0.78rem; font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* card slide animations */
+    @keyframes slideR { from { opacity:0; transform: translateX(28px); } to { opacity:1; transform: none; } }
+    @keyframes slideL { from { opacity:0; transform: translateX(-28px); } to { opacity:1; transform: none; } }
+    .card.anim-r { animation: slideR 0.22s ease; }
+    .card.anim-l { animation: slideL 0.22s ease; }
+
+    /* ── QUIZ MODE ── */
+    #quizMode { display: none; }
+    .quiz-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 22px 22px;
+      text-align: center;
+      margin-bottom: 14px;
+      position: relative; overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 6px 24px rgba(0,0,0,0.06);
+    }
+    .quiz-card::after {
+      content: ''; position: absolute;
+      top:0; left:0; right:0; height:3px;
+      background: linear-gradient(90deg, var(--primary2), var(--accent));
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+    .quiz-qlabel { font-size: 0.72rem; text-transform: uppercase; letter-spacing:1px; color: var(--muted); margin-bottom: 14px; }
+    .quiz-char {
+      font-size: 130px; line-height: 1;
+      font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", sans-serif;
+      text-shadow: 0 6px 24px rgba(53,99,233,0.12);
+    }
+    .quiz-choices {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px; margin-bottom: 14px;
+    }
+    .choice {
+      padding: 16px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 1rem; font-weight: 700;
+      letter-spacing: 1.5px;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .choice:hover:not(:disabled) { border-color: var(--primary); background: rgba(53,99,233,0.07); color: var(--primary); }
+    .choice.correct { background: rgba(52,211,153,0.15); border-color: var(--green); color: var(--green); }
+    .choice.wrong   { background: rgba(248,113,113,0.12); border-color: var(--red); color: var(--red); }
+    .choice:disabled { cursor: default; }
+
+    .quiz-next {
+      width: 100%; padding: 13px;
+      border-radius: 12px; border: none;
+      background: var(--primary); color: #fff;
+      font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; transition: background 0.15s;
+      display: none; margin-bottom: 14px;
+    }
+    .quiz-next:hover { background: var(--primary2); }
+
+    .quiz-stats {
+      display: flex; justify-content: center; gap: 28px;
+      font-size: 0.83rem; color: var(--muted);
+    }
+    .quiz-stats strong { color: var(--text); }
+
+    /* Flash animation for quiz card */
+    @keyframes qflashGreen { 0%,100%{background:var(--surface)} 40%{background:rgba(31,158,93,0.12)} }
+    @keyframes qflashRed   { 0%,100%{background:var(--surface)} 40%{background:rgba(220,45,45,0.09)} }
+    .quiz-card.flash-g { animation: qflashGreen 0.45s ease; }
+    .quiz-card.flash-r { animation: qflashRed   0.45s ease; }
+
+    /* ── Reference Chart ── */
+    .chart-bar {
+      display: flex; gap: 8px; align-items: stretch;
+      margin-top: 20px; margin-bottom: 0;
+    }
+    .chart-toggle {
+      flex: 1;
+      padding: 10px;
+      border-radius: 10px; border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--muted); font-size: 0.8rem; font-weight: 600;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .chart-toggle:hover { border-color: var(--primary); color: var(--primary); }
+    .chart-snd-btn {
+      padding: 10px 13px;
+      border-radius: 10px; border: 1.5px solid rgba(31,158,93,0.35);
+      background: rgba(31,158,93,0.07);
+      color: var(--green); font-size: 0.75rem; font-weight: 700;
+      cursor: pointer; transition: all 0.15s; white-space: nowrap;
+      font-family: inherit;
+    }
+    .chart-snd-btn:hover { border-color: var(--green); background: rgba(31,158,93,0.14); }
+    .chart-snd-btn.muted {
+      background: var(--surface2); color: var(--muted);
+      border-color: var(--border);
+    }
+    .chart-snd-btn.muted:hover { border-color: var(--muted); }
+    .chart-wrap {
+      display: none;
+      margin-top: 10px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 12px;
+      overflow-x: auto;
+    }
+    .chart-wrap.open { display: block; }
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+    }
+    .chart-cell {
+      background: var(--surface2);
+      border-radius: 8px;
+      padding: 7px 4px;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.12s;
+      border: 1px solid transparent;
+    }
+    .chart-cell:hover  { background: rgba(53,99,233,0.08); border-color: var(--primary); }
+    .chart-cell.known  { background: rgba(31,158,93,0.1); border-color: rgba(31,158,93,0.35); }
+    .chart-cell .ch    { font-size: 1.3rem; font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; }
+    .chart-cell .ro    { font-size: 0.6rem; color: var(--muted); font-weight: 600; letter-spacing: 0.5px; }
+    .chart-group-label {
+      grid-column: 1 / -1;
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;
+      color: var(--muted); margin: 8px 0 2px;
+    }
+
+    /* ── Keyboard hint ── */
+    .kbd-hint {
+      text-align: center; font-size: 0.7rem; color: var(--muted); margin-top: 16px;
+    }
+    .kbd-hint kbd {
+      display: inline-block; padding: 1px 5px;
+      border-radius: 4px; border: 1px solid var(--border);
+      background: var(--surface2); font-size: 0.68rem;
+      font-family: monospace;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center; padding: 48px 20px; color: var(--muted);
+    }
+    .empty-state .e-icon { font-size: 3rem; margin-bottom: 12px; }
+    .empty-state p { font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <header class="header">
+    <h1 class="title">Hira<em>flash</em></h1>
+    <p class="subtitle">Learn all 108 hiragana — dakuten, combos &amp; more</p>
+  </header>
+
+  <div class="prog-label">
+    <span id="progLabel">70 / 105 learned</span>
+    <span id="progPct">67%</span>
+    <button class="reset-btn" onclick="resetProgress()" title="Reset all progress">↺ Reset</button>
+  </div>
+  <div class="prog-bar-wrap">
+    <div class="prog-fill" id="progFill" style="width: 67%;"></div>
+  </div>
+
+  <div style="margin-top:12px">
+    <div class="filter-scroll" id="filterTabs"><button class="ftab" data-f="All">All</button><button class="ftab" data-f="Vowels">Vowels</button><button class="ftab" data-f="K">K row</button><button class="ftab" data-f="S">S row</button><button class="ftab" data-f="T">T row</button><button class="ftab" data-f="N">N row</button><button class="ftab" data-f="H">H row</button><button class="ftab" data-f="M">M row</button><button class="ftab" data-f="Y">Y row</button><button class="ftab" data-f="R">R row</button><button class="ftab" data-f="W">W row</button><button class="ftab" data-f="Special">Special</button><div style="flex: 0 0 1px; background: var(--border); align-self: stretch; margin: 4px 2px;"></div><button class="ftab" data-f="Dakuten">Dakuten</button><button class="ftab" data-f="G">G row</button><button class="ftab" data-f="Z">Z row</button><button class="ftab" data-f="D">D row</button><button class="ftab" data-f="B">B row</button><button class="ftab" data-f="P">P row</button><div style="flex: 0 0 1px; background: var(--border); align-self: stretch; margin: 4px 2px;"></div><button class="ftab active" data-f="Combos">Combos</button><button class="ftab" data-f="KY">KY</button><button class="ftab" data-f="SH">SH</button><button class="ftab" data-f="CH">CH</button><button class="ftab" data-f="NY">NY</button><button class="ftab" data-f="HY">HY</button><button class="ftab" data-f="MY">MY</button><button class="ftab" data-f="RY">RY</button><button class="ftab" data-f="GY">GY</button><button class="ftab" data-f="J">J</button><button class="ftab" data-f="BY">BY</button><button class="ftab" data-f="PY">PY</button><button class="ftab" data-f="⭐ Review">⭐ Review</button></div>
+  </div>
+
+  <div class="mode-row">
+    <button class="mbtn active" id="mFlash" onclick="setMode(&#39;flash&#39;)">📇 Flashcards</button>
+    <button class="mbtn" id="mQuiz" onclick="setMode(&#39;quiz&#39;)">🎯 Quiz</button>
+  </div>
+
+  <!-- ─── FLASHCARD MODE ─── -->
+  <div id="flashMode">
+    <!-- Card -->
+    <div class="card" id="mainCard">
+      <div class="ap-strip" id="apStrip"></div>
+      <div class="card-meta">
+        <span class="group-badge" id="cardGroup">RY combo</span>
+        <span class="ccount" id="ccount">21 / 33</span>
+      </div>
+      <div class="hira" id="hiraChar">りょ</div>
+      <div class="romaji" id="romajiEl" onclick="peek()" title="Click to peek">ryo</div>
+      <button class="audio-btn" id="audioBtn" onclick="playAudio()" title="Pronounce (Space)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"></path>
+        </svg>
+      </button>
+      <hr class="divider">
+      <div class="mnemonic-row" id="mnemonicRow" onclick="peek()" title="Click to peek">
+        <div class="m-emoji" id="mEmoji">り</div>
+        <div class="m-text">
+          <div class="m-label" id="mLabel">Pronunciation</div>
+          <div class="m-body" id="mBody">り (ri)  +  ょ (yo)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <div class="card-controls">
+      <button class="nav-btn" onclick="nav(-1)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"></path></svg>
+        Prev
+      </button>
+      <button class="know-btn" id="knowBtn" onclick="toggleKnown()">✓ Know it</button>
+      <button class="nav-btn" onclick="nav(1)">
+        Next
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"></path></svg>
+      </button>
+    </div>
+
+    <!-- Secondary controls -->
+    <div class="sec-controls">
+      <button class="sec-btn" id="apBtn" onclick="toggleAutoplay()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        Autoplay
+      </button>
+      <select class="speed-sel" id="speedSel" onchange="setSpeed(this.value)">
+        <option value="1.5">1.5 s</option>
+        <option value="2">2 s</option>
+        <option value="3" selected="">3 s</option>
+        <option value="5">5 s</option>
+      </select>
+      <button class="sec-btn" id="shuffleBtn" onclick="toggleShuffle()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line>
+          <polyline points="21 16 21 21 16 21"></polyline><line x1="4" y1="4" x2="9" y2="9"></line>
+        </svg>
+        Shuffle
+      </button>
+      <button class="sec-btn" id="reviewBtn" onclick="toggleReview()">📚 Review</button>
+      <button class="sec-btn" id="hideRomajiBtn" onclick="toggleHideRomaji()" title="Hide reading to self-test">👁 Hide</button>
+      <button class="sec-btn" id="autoSoundBtn" onclick="toggleAutoSound()" title="Auto-play audio on each card">🔊 Sound</button>
+    </div>
+  </div>
+
+  <!-- ─── QUIZ MODE ─── -->
+  <div id="quizMode">
+    <div class="quiz-card" id="quizCard">
+      <div class="quiz-qlabel">What is the reading of this character?</div>
+      <div class="quiz-char" id="qChar">あ</div>
+    </div>
+    <div class="quiz-choices" id="qChoices"></div>
+    <button class="quiz-next" id="qNext" onclick="nextQuiz()">Next →</button>
+    <div class="quiz-stats">
+      <div>Correct <strong id="qCorrect">0</strong></div>
+      <div>Total <strong id="qTotal">0</strong></div>
+      <div>Streak <strong id="qStreak">0</strong> 🔥</div>
+    </div>
+  </div>
+
+  <!-- ─── Reference Chart ─── -->
+  <div class="chart-bar">
+    <button class="chart-toggle" onclick="toggleChart()">▼ Full Hiragana Reference Chart</button>
+    <button class="chart-snd-btn" id="chartSoundBtn" onclick="toggleChartSound()" title="Toggle sound when clicking chart cells">🔔 Chart audio</button>
+  </div>
+  <div class="chart-wrap" id="chartWrap"></div>
+
+  <div class="kbd-hint" style="margin-top:16px">
+    <kbd>←</kbd> <kbd>→</kbd> navigate &nbsp;
+    <kbd>Space</kbd> audio &nbsp;
+    <kbd>K</kbd> mark known &nbsp;
+    <kbd>A</kbd> autoplay
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+//  DATA  (46 hiragana with visual mnemonics)
+// ─────────────────────────────────────────────
+const CARDS = [
+  // ── Vowels ──
+  { char:'あ', romaji:'a',   group:'Vowels',  emoji:'🏠', mnemonic:'An "A"-frame house — duck inside and say "ahh!"' },
+  { char:'い', romaji:'i',   group:'Vowels',  emoji:'🐍', mnemonic:'Two eels facing each other, squealing "ee-ee!"' },
+  { char:'う', romaji:'u',   group:'Vowels',  emoji:'🐮', mnemonic:'A bull\'s head with one horn — "oo" it groans' },
+  { char:'え', romaji:'e',   group:'Vowels',  emoji:'🤸', mnemonic:'A gymnast on a balance beam shrugs — "eh?"' },
+  { char:'お', romaji:'o',   group:'Vowels',  emoji:'😮', mnemonic:'A spinning top — round and round, saying "oh!"' },
+  // ── K row ──
+  { char:'か', romaji:'ka',  group:'K',       emoji:'🪁', mnemonic:'A kite flying in the breeze — "ka" is for kite!' },
+  { char:'き', romaji:'ki',  group:'K',       emoji:'🔑', mnemonic:'An ornate key with teeth pointing right — ki = key!' },
+  { char:'く', romaji:'ku',  group:'K',       emoji:'🐦', mnemonic:'A cuckoo bird\'s open beak — "cu-koo, cu-koo!"' },
+  { char:'け', romaji:'ke',  group:'K',       emoji:'🍺', mnemonic:'A keg of beer on a tall post — "ke"g!' },
+  { char:'こ', romaji:'ko',  group:'K',       emoji:'🎵', mnemonic:'Two musical lines — a "co"nquering melody!' },
+  // ── S row ──
+  { char:'さ', romaji:'sa',  group:'S',       emoji:'⚔️', mnemonic:'A samurai\'s crossed swords — "sa"murai stance!' },
+  { char:'し', romaji:'shi', group:'S',       emoji:'🎣', mnemonic:'A fishing hook dangling down — "shi"mmies in the water' },
+  { char:'す', romaji:'su',  group:'S',       emoji:'🎠', mnemonic:'"Sue" on a swing, looping at the bottom' },
+  { char:'せ', romaji:'se',  group:'S',       emoji:'💺', mnemonic:'A person fastening their "se"atbelt — arms reaching forward' },
+  { char:'そ', romaji:'so',  group:'S',       emoji:'🧵', mnemonic:'A sewing thread looping back — "so" we sew!' },
+  // ── T row ──
+  { char:'た', romaji:'ta',  group:'T',       emoji:'🪄', mnemonic:'"Ta-da!" — a magician\'s crossed wand and hat!' },
+  { char:'ち', romaji:'chi', group:'T',       emoji:'📣', mnemonic:'A cheerleader with one arm raised — "chi-chi-chi!"' },
+  { char:'つ', romaji:'tsu', group:'T',       emoji:'🌊', mnemonic:'A "tsu"nami wave curling powerfully toward shore!' },
+  { char:'て', romaji:'te',  group:'T',       emoji:'📞', mnemonic:'A "te"lephone pole with a drooping wire on top!' },
+  { char:'と', romaji:'to',  group:'T',       emoji:'🦶', mnemonic:'A "to"e with a sharp thorn stuck right in it — ouch!' },
+  // ── N row ──
+  { char:'な', romaji:'na',  group:'N',       emoji:'🔨', mnemonic:'A nail being hammered in — "na"il it down!' },
+  { char:'に', romaji:'ni',  group:'N',       emoji:'🚪', mnemonic:'A door — lean your "knee" against it to push it open!' },
+  { char:'ぬ', romaji:'nu',  group:'N',       emoji:'🍜', mnemonic:'"Noodles" swirling in a bowl — twirly like ぬ!' },
+  { char:'ね', romaji:'ne',  group:'N',       emoji:'🐱', mnemonic:'A cat (neko) with a long looping curly tail — neko = ね!' },
+  { char:'の', romaji:'no',  group:'N',       emoji:'🚫', mnemonic:'A spiral "no" sign — spinning in denial!' },
+  // ── H row ──
+  { char:'は', romaji:'ha',  group:'H',       emoji:'😄', mnemonic:'Laughing "ha ha ha!" with arms thrown wide open!' },
+  { char:'ひ', romaji:'hi',  group:'H',       emoji:'😁', mnemonic:'A big "hee hee" grin — that ear-to-ear smile!' },
+  { char:'ふ', romaji:'fu',  group:'H',       emoji:'🗻', mnemonic:'Mount "Fu"ji! Four strokes form the iconic volcano!' },
+  { char:'へ', romaji:'he',  group:'H',       emoji:'⛰️', mnemonic:'Just one mountain peak — "hey, that\'s a mountain!"' },
+  { char:'ほ', romaji:'ho',  group:'H',       emoji:'🎅', mnemonic:'"Ho ho ho!" — see Santa\'s jolly beard in the strokes!' },
+  // ── M row ──
+  { char:'ま', romaji:'ma',  group:'M',       emoji:'👩', mnemonic:'"Mama" — a mother\'s crossed arms with a loving hook' },
+  { char:'み', romaji:'mi',  group:'M',       emoji:'☝️', mnemonic:'"Me!" — a finger pointing back at "mi"self!' },
+  { char:'む', romaji:'mu',  group:'M',       emoji:'🐄', mnemonic:'A cow\'s snout and horn going "moo!" — complete with swirl!' },
+  { char:'め', romaji:'me',  group:'M',       emoji:'💫', mnemonic:'A spinning dizzy eye — "me" all dizzy in a whirlpool!' },
+  { char:'も', romaji:'mo',  group:'M',       emoji:'🐟', mnemonic:'"More!" — two worm hooks wanting more fish!' },
+  // ── Y row ──
+  { char:'や', romaji:'ya',  group:'Y',       emoji:'⛵', mnemonic:'A "ya"cht with a big sail — catch the wind, "ya"!' },
+  { char:'ゆ', romaji:'yu',  group:'Y',       emoji:'🐟', mnemonic:'A fish making a "U"-turn — "yu" swim back!' },
+  { char:'よ', romaji:'yo',  group:'Y',       emoji:'🪀', mnemonic:'A "yo-yo" on its string — bouncing up and down, "yo!"' },
+  // ── R row ──
+  { char:'ら', romaji:'ra',  group:'R',       emoji:'🐰', mnemonic:'A rabbit with floppy ears — "ra"bbit hops right!' },
+  { char:'り', romaji:'ri',  group:'R',       emoji:'🌿', mnemonic:'Two reeds growing side by side at the riverbank!' },
+  { char:'る', romaji:'ru',  group:'R',       emoji:'🪝', mnemonic:'A fishing lure with a looped tail — "ru"ling the river!' },
+  { char:'れ', romaji:'re',  group:'R',       emoji:'💁', mnemonic:'A person with "re"d hair flowing to the right!' },
+  { char:'ろ', romaji:'ro',  group:'R',       emoji:'🛣️', mnemonic:'A "ro"ad curving off — like る but the loop drove away!' },
+  // ── W row ──
+  { char:'わ', romaji:'wa',  group:'W',       emoji:'💧', mnemonic:'"Wa"ter — a wave swooping and swirling!' },
+  { char:'を', romaji:'wo',  group:'W',       emoji:'😲', mnemonic:'"Wh"oa! A surprised person — used only as object particle!' },
+  // ── Special ──
+  { char:'ん', romaji:'n',   group:'Special', emoji:'✍️', mnemonic:'A cursive n — the only standalone consonant in hiragana!' },
+  // ── G row (voiced K — add ゛) ──
+  { char:'が', romaji:'ga',  group:'G',       emoji:'🐉', mnemonic:'A kite with a "ga"rgoyle aboard — the two dakuten dots are its horns!' },
+  { char:'ぎ', romaji:'gi',  group:'G',       emoji:'🎸', mnemonic:'The key now plays "gi"tar — the two dots are the vibrating strings!' },
+  { char:'ぐ', romaji:'gu',  group:'G',       emoji:'💧', mnemonic:'The cuckoo beak is "gu"rgling — throat full of water, dots bubbling up!' },
+  { char:'げ', romaji:'ge',  group:'G',       emoji:'🌋', mnemonic:'The keg "ge"ysers open — pop! The dots are the erupting bubbles!' },
+  { char:'ご', romaji:'go',  group:'G',       emoji:'♟️', mnemonic:'Two lines on a "Go" board — the dots say game on, "go"!' },
+  // ── Z row (voiced S — add ゛) ──
+  { char:'ざ', romaji:'za',  group:'Z',       emoji:'⚡', mnemonic:'The samurai strikes a Z-pose — "za"p! Lightning from the blade!' },
+  { char:'じ', romaji:'ji',  group:'Z',       emoji:'🔔', mnemonic:'The fishing hook now "ji"ngles — bells hanging from the tip!' },
+  { char:'ず', romaji:'zu',  group:'Z',       emoji:'🦁', mnemonic:'"Zu"(zoo) — Sue\'s swing goes right past the lions!' },
+  { char:'ぜ', romaji:'ze',  group:'Z',       emoji:'🧘', mnemonic:'A "ze"n monk sitting still — even the dots float peacefully!' },
+  { char:'ぞ', romaji:'zo',  group:'Z',       emoji:'🧟', mnemonic:'The sewing thread "zo"mbie lurches forward — stitched together!' },
+  // ── D row (voiced T — add ゛) ──
+  { char:'だ', romaji:'da',  group:'D',       emoji:'💃', mnemonic:'"Ta-da!" becomes a "da"nce — the magician breaks into a jig!' },
+  { char:'ぢ', romaji:'ji',  group:'D',       emoji:'🎭', mnemonic:'The cheerleader "di"gs into a jig — same sound as じ, different look!' },
+  { char:'づ', romaji:'zu',  group:'D',       emoji:'🏜️', mnemonic:'A "du"ne tsunami — a sand wave crashing (same sound as ず)!' },
+  { char:'で', romaji:'de',  group:'D',       emoji:'🖥️', mnemonic:'The telephone pole becomes a "de"sk lamp — dots are the glow!' },
+  { char:'ど', romaji:'do',  group:'D',       emoji:'🍩', mnemonic:'A "do"nut skewered on a toe — sweet and sore at once!' },
+  // ── B row (voiced H — add ゛) ──
+  { char:'ば', romaji:'ba',  group:'B',       emoji:'🐑', mnemonic:'"Ha!" becomes "ba"a — a laughing sheep with its dots as eyes!' },
+  { char:'び', romaji:'bi',  group:'B',       emoji:'🐝', mnemonic:'"Hee-hee" becomes a "bi"g buzzing bee — dots are its wings!' },
+  { char:'ぶ', romaji:'bu',  group:'B',       emoji:'💨', mnemonic:'Mount Fuji "bu"bbles — the dots are puffs of volcanic smoke!' },
+  { char:'べ', romaji:'be',  group:'B',       emoji:'🔔', mnemonic:'The mountain peak now has a "be"ll — hear it ring out!' },
+  { char:'ぼ', romaji:'bo',  group:'B',       emoji:'⛵', mnemonic:'"Ho ho ho" becomes a "bo"at — Santa\'s sailing with dots as waves!' },
+  // ── P row (semi-voiced H — add ゜ handakuten) ──
+  { char:'ぱ', romaji:'pa',  group:'P',       emoji:'🎉', mnemonic:'"Ha" + circle = "pa"rty popper! Dad laughs and pops confetti!' },
+  { char:'ぴ', romaji:'pi',  group:'P',       emoji:'🥧', mnemonic:'"Hee" + circle = "pi"e — a perfectly round smiling pie (3.14)!' },
+  { char:'ぷ', romaji:'pu',  group:'P',       emoji:'💭', mnemonic:'Mount Fuji "pu"ffs a perfect smoke ring — the circle floats up!' },
+  { char:'ぺ', romaji:'pe',  group:'P',       emoji:'🐧', mnemonic:'The mountain peak becomes a "pe"nguin beak — squawk!' },
+  { char:'ぽ', romaji:'po',  group:'P',       emoji:'🎈', mnemonic:'"Ho" + circle = "po"p! Santa\'s balloon just went pop!' },
+  // ── っ (small tsu) ──
+  { char:'っ', romaji:'(×2)', group:'Special', emoji:'⚡', mnemonic:'A tiny tsu that DOUBLES the next consonant — きって (ki·t·te) = stamp!' },
+  // ── KY combos ──
+  { char:'きゃ', romaji:'kya', group:'KY', emoji:'🚣', mnemonic:'KYAku (guest) — the key welcomes a guest aboard its kayak!' },
+  { char:'きゅ', romaji:'kyu', group:'KY', emoji:'🐕', mnemonic:'KYUu! — a puppy yelps for a key treat!' },
+  { char:'きょ', romaji:'kyo', group:'KY', emoji:'⛩️', mnemonic:'KYOto — carry your key to Japan\'s ancient capital!' },
+  // ── SH combos ──
+  { char:'しゃ', romaji:'sha', group:'SH', emoji:'🦈', mnemonic:'SHArk — the fishing hook now belongs to a shark!' },
+  { char:'しゅ', romaji:'shu', group:'SH', emoji:'🎨', mnemonic:'SHUmi (hobby) — the hook is your creative passion!' },
+  { char:'しょ', romaji:'sho', group:'SH', emoji:'🏯', mnemonic:'SHOgun — the hook commands like a warlord!' },
+  // ── CH combos ──
+  { char:'ちゃ', romaji:'cha', group:'CH', emoji:'🍵', mnemonic:'CHA (tea) — the cheerleader serves green tea!' },
+  { char:'ちゅ', romaji:'chu', group:'CH', emoji:'💋', mnemonic:'CHUu (kiss) — the cheerleader blows a kiss!' },
+  { char:'ちょ', romaji:'cho', group:'CH', emoji:'🦋', mnemonic:'CHOu (butterfly) — the cheerleader chases a butterfly!' },
+  // ── NY combos ──
+  { char:'にゃ', romaji:'nya', group:'NY', emoji:'🐱', mnemonic:'NYAn — the door opens and a cat meows in!' },
+  { char:'にゅ', romaji:'nyu', group:'NY', emoji:'🥛', mnemonic:'NYUu (enter) — milk squeezes through the door!' },
+  { char:'にょ', romaji:'nyo', group:'NY', emoji:'🌊', mnemonic:'NYOro (slithering) — something slips through the door!' },
+  // ── HY combos ──
+  { char:'ひゃ', romaji:'hya', group:'HY', emoji:'💯', mnemonic:'HYAku (100) — the grin scores one hundred percent!' },
+  { char:'ひゅ', romaji:'hyu', group:'HY', emoji:'💨', mnemonic:'HYUu — a gust of wind whooshes past the grin!' },
+  { char:'ひょ', romaji:'hyo', group:'HY', emoji:'😜', mnemonic:'HYOkkin (funny guy) — the grin pops up out of nowhere!' },
+  // ── MY combos ──
+  { char:'みゃ', romaji:'mya', group:'MY', emoji:'😸', mnemonic:'MYAu — "me" points at the yowling cat!' },
+  { char:'みゅ', romaji:'myu', group:'MY', emoji:'🎵', mnemonic:'MYUsic — "me" conducts a beautiful melody!' },
+  { char:'みょ', romaji:'myo', group:'MY', emoji:'🤔', mnemonic:'MYOu (strange) — "me" puzzled by something peculiar!' },
+  // ── RY combos ──
+  { char:'りゃ', romaji:'rya', group:'RY', emoji:'📝', mnemonic:'RYAku (abbreviation) — the reeds write shorthand notes!' },
+  { char:'りゅ', romaji:'ryu', group:'RY', emoji:'🐉', mnemonic:'RYUu (dragon) — a mighty dragon rises from the reeds!' },
+  { char:'りょ', romaji:'ryo', group:'RY', emoji:'🧳', mnemonic:'RYOkou (travel) — the reeds pack bags for a journey!' },
+  // ── GY combos (voiced) ──
+  { char:'ぎゃ', romaji:'gya', group:'GY', emoji:'😱', mnemonic:'GYA! — the guitar gives you a shocking fright!' },
+  { char:'ぎゅ', romaji:'gyu', group:'GY', emoji:'🥩', mnemonic:'GYUudon (beef bowl) — the guitar player devours gyudon!' },
+  { char:'ぎょ', romaji:'gyo', group:'GY', emoji:'🥟', mnemonic:'GYOza (dumplings) — the guitar player fries gyoza!' },
+  // ── J combos (voiced) ──
+  { char:'じゃ', romaji:'ja',  group:'J',  emoji:'✌️', mnemonic:'JAnken (rock-paper-scissors) — the jingling hook plays jan-ken-pon!' },
+  { char:'じゅ', romaji:'ju',  group:'J',  emoji:'🧃', mnemonic:'JUusu (juice) — the jingling hook pours a juice!' },
+  { char:'じょ', romaji:'jo',  group:'J',  emoji:'👩', mnemonic:'JOsei (woman) — a wise woman jingles her keys!' },
+  // ── DY combos (voiced D — same sound as J combos) ──
+  { char:'ぢゃ', romaji:'ja',  group:'DY', emoji:'🎭', mnemonic:'Same sound as じゃ — the cheerleader\'s twin takes the stage!' },
+  { char:'ぢゅ', romaji:'ju',  group:'DY', emoji:'🎪', mnemonic:'Same sound as じゅ — the circus jug-juggler is ぢ in disguise!' },
+  { char:'ぢょ', romaji:'jo',  group:'DY', emoji:'🃏', mnemonic:'Same sound as じょ — the joker steps out wearing ぢ\'s costume!' },
+  // ── BY combos (voiced) ──
+  { char:'びゃ', romaji:'bya', group:'BY', emoji:'🌟', mnemonic:'BYAku (white) — the bee flashes brilliant white light!' },
+  { char:'びゅ', romaji:'byu', group:'BY', emoji:'🌬️', mnemonic:'BYUu — the bee zooms past with a rush of wind!' },
+  { char:'びょ', romaji:'byo', group:'BY', emoji:'🤒', mnemonic:'BYOki (sick) — the bee feels under the weather!' },
+  // ── PY combos (handakuten) ──
+  { char:'ぴゃ', romaji:'pya', group:'PY', emoji:'🎊', mnemonic:'PYA! — the party popper fires with a sharp burst!' },
+  { char:'ぴゅ', romaji:'pyu', group:'PY', emoji:'🚀', mnemonic:'PYUu — the pie launches like a rocket!' },
+  { char:'ぴょ', romaji:'pyo', group:'PY', emoji:'🐇', mnemonic:'PYOnpyon (hopping) — the pie bounces like a bunny!' },
+];
+
+const GROUPS = [
+  'All', 'Vowels', 'K', 'S', 'T', 'N', 'H', 'M', 'Y', 'R', 'W', 'Special',
+  '|', 'Dakuten', 'G', 'Z', 'D', 'B', 'P',
+  '|', 'Combos', 'KY', 'SH', 'CH', 'NY', 'HY', 'MY', 'RY', 'GY', 'J', 'DY', 'BY', 'PY',
+  '⭐ Review',
+];
+
+function groupLabel(g) {
+  if (['K','S','T','N','H','M','Y','R','W','G','Z','D','B','P'].includes(g)) return g + ' row';
+  if (['KY','SH','CH','NY','HY','MY','RY','GY','J','DY','BY','PY'].includes(g)) return g + ' combo';
+  return g;
+}
+
+// ─────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────
+const st = {
+  mode: 'flash',
+  filter: 'All',
+  shuffle: false,
+  reviewOnly: false,
+  hideRomaji: false,
+  peekTimer: null,
+  apRevealTimer: null,
+  autoSound: false,
+  chartSound: true,
+  lastPlayedChar: null,
+  autoplay: false,
+  apTimer: null,
+  apSpeed: 3,
+  idx: 0,
+  deck: [],
+  order: [],
+  known: {},
+  quiz: { correct: 0, total: 0, streak: 0, answered: false, card: null },
+};
+
+try { const s = localStorage.getItem('hira-v2'); if (s) st.known = JSON.parse(s); } catch(e){}
+function save() { try { localStorage.setItem('hira-v2', JSON.stringify(st.known)); } catch(e){} }
+
+function resetProgress() {
+  if (!confirm('Reset all progress? All "known" marks will be cleared.')) return;
+  st.known = {};
+  save();
+  buildDeck();
+  st.idx = 0;
+  render(0);
+}
+
+// ─────────────────────────────────────────────
+//  DECK MANAGEMENT
+// ─────────────────────────────────────────────
+function buildDeck() {
+  let deck = CARDS.filter(c => {
+    if (st.filter === 'All') return true;
+    if (st.filter === '⭐ Review') return !st.known[c.char];
+    if (st.filter === 'Dakuten') return ['G','Z','D','B','P'].includes(c.group);
+    if (st.filter === 'Combos') return ['KY','SH','CH','NY','HY','MY','RY','GY','J','DY','BY','PY'].includes(c.group);
+    return c.group === st.filter;
+  });
+  if (st.reviewOnly) deck = deck.filter(c => !st.known[c.char]);
+  st.deck = deck;
+  st.order = deck.map((_, i) => i);
+  if (st.shuffle) st.order.sort(() => Math.random() - 0.5);
+  if (st.idx >= st.order.length) st.idx = 0;
+}
+
+function card() { return st.deck[st.order[st.idx]] || null; }
+
+// ─────────────────────────────────────────────
+//  RENDER
+// ─────────────────────────────────────────────
+function render(dir = 0) {
+  const c = card();
+  if (!c) {
+    document.getElementById('mainCard').innerHTML = `
+      <div class="empty-state">
+        <div class="e-icon">🎉</div>
+        <p>All cards in this group are marked as <strong>known!</strong></p>
+        <button onclick="toggleReview()" style="margin-top:14px;padding:10px 20px;border-radius:10px;border:1.5px solid var(--primary);background:var(--primary);color:#fff;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:inherit;">
+          Show all cards
+        </button>
+      </div>`;
+    return;
+  }
+  const el = document.getElementById('mainCard');
+  // Restore card structure if empty-state replaced it
+  if (!document.getElementById('hiraChar')) {
+    el.innerHTML = `
+      <div class="ap-strip" id="apStrip"></div>
+      <div class="card-meta">
+        <span class="group-badge" id="cardGroup"></span>
+        <span class="ccount" id="ccount"></span>
+      </div>
+      <div class="hira" id="hiraChar"></div>
+      <div class="romaji" id="romajiEl" onclick="peek()" title="Click to peek"></div>
+      <button class="audio-btn" id="audioBtn" onclick="playAudio()" title="Pronounce (Space)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"></path>
+        </svg>
+      </button>
+      <hr class="divider">
+      <div class="mnemonic-row" id="mnemonicRow" onclick="peek()" title="Click to peek">
+        <div class="m-emoji" id="mEmoji"></div>
+        <div class="m-text">
+          <div class="m-label" id="mLabel"></div>
+          <div class="m-body" id="mBody"></div>
+        </div>
+      </div>`;
+  }
+  // Animate
+  if (dir !== 0) {
+    el.className = 'card ' + (dir > 0 ? 'anim-r' : 'anim-l');
+    setTimeout(() => el.classList.remove('anim-r','anim-l'), 260);
+  }
+  const isKnown = !!st.known[c.char];
+  el.className = 'card' + (isKnown ? ' known' : '');
+
+  document.getElementById('hiraChar').textContent   = c.char;
+  document.getElementById('romajiEl').textContent   = c.romaji;
+  const isDakuten = ['G','Z','D','B','GY','J','BY'].includes(c.group);
+  const isHandakuten = ['P','PY'].includes(c.group);
+  const groupSuffix = isDakuten ? ' ゛' : isHandakuten ? ' ゜' : '';
+  document.getElementById('cardGroup').textContent  = groupLabel(c.group) + groupSuffix;
+  document.getElementById('ccount').textContent     = `${st.idx + 1} / ${st.deck.length}`;
+  const COMBO_GROUPS = ['KY','SH','CH','NY','HY','MY','RY','GY','J','DY','BY','PY'];
+  if (COMBO_GROUPS.includes(c.group)) {
+    const base = c.char[0];
+    const small = c.char[1];
+    const baseRomaji = CARDS.find(x => x.char === base)?.romaji ?? '?';
+    const smallRomaji = { 'ゃ':'ya', 'ゅ':'yu', 'ょ':'yo' }[small] ?? '?';
+    document.getElementById('mLabel').textContent = 'Pronunciation';
+    document.getElementById('mEmoji').textContent = base;
+    document.getElementById('mBody').textContent  = `${base} (${baseRomaji})  +  ${small} (${smallRomaji})`;
+  } else {
+    document.getElementById('mLabel').textContent = 'Memory trick';
+    document.getElementById('mEmoji').textContent = c.emoji;
+    document.getElementById('mBody').textContent  = c.mnemonic;
+  }
+  document.getElementById('romajiEl').classList.toggle('blurred', st.hideRomaji);
+  document.getElementById('mnemonicRow').classList.toggle('blurred', st.hideRomaji);
+
+  if (st.autoSound && c.char !== st.lastPlayedChar) {
+    st.lastPlayedChar = c.char;
+    playAudio();
+  }
+
+  const kb = document.getElementById('knowBtn');
+  kb.textContent = isKnown ? '✓ Known!' : '✓ Know it';
+  kb.className = 'know-btn' + (isKnown ? ' active' : '');
+
+  updateProgress();
+  refreshChart();
+}
+
+function updateProgress() {
+  const total = CARDS.length;
+  const known = Object.values(st.known).filter(Boolean).length;
+  const pct = Math.round(known / total * 100);
+  document.getElementById('progLabel').textContent = `${known} / ${total} learned`;
+  document.getElementById('progPct').textContent   = `${pct}%`;
+  document.getElementById('progFill').style.width  = pct + '%';
+}
+
+// ─────────────────────────────────────────────
+//  NAVIGATION
+// ─────────────────────────────────────────────
+function nav(dir) {
+  if (st.deck.length === 0) return;
+  st.idx = (st.idx + dir + st.deck.length) % st.deck.length;
+  render(dir);
+  if (st.autoplay) resetAP();
+}
+
+// ─────────────────────────────────────────────
+//  KNOWN TOGGLE
+// ─────────────────────────────────────────────
+function toggleKnown() {
+  const c = card(); if (!c) return;
+  st.known[c.char] = !st.known[c.char];
+  save(); render(0);
+  const kb = document.getElementById('knowBtn');
+  kb.style.transform = 'scale(1.1)';
+  setTimeout(() => kb.style.transform = '', 200);
+}
+
+// ─────────────────────────────────────────────
+//  AUDIO
+// ─────────────────────────────────────────────
+function playAudio(charOverride) {
+  const c = charOverride ? CARDS.find(x => x.char === charOverride) : card();
+  if (!c) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(c.char);
+  u.lang = 'ja-JP'; u.rate = 0.75; u.pitch = 1.0;
+  const btn = document.getElementById('audioBtn');
+  if (btn) btn.classList.add('playing');
+  u.onend = u.onerror = () => { if (btn) btn.classList.remove('playing'); };
+  window.speechSynthesis.speak(u);
+}
+
+// ─────────────────────────────────────────────
+//  AUTOPLAY
+// ─────────────────────────────────────────────
+function toggleAutoplay() {
+  st.autoplay = !st.autoplay;
+  const btn = document.getElementById('apBtn');
+  if (st.autoplay) {
+    btn.classList.add('active');
+    btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+      <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> Pause`;
+    startAP();
+  } else {
+    btn.classList.remove('active');
+    btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg> Autoplay`;
+    stopAP();
+  }
+}
+
+function apUnblur() {
+  document.getElementById('romajiEl').classList.remove('blurred');
+  document.getElementById('mnemonicRow').classList.remove('blurred');
+}
+
+function startAP() {
+  const strip = document.getElementById('apStrip');
+  strip.style.transition = 'none'; strip.style.width = '0%';
+  void strip.offsetWidth;
+  strip.style.transition = `width ${st.apSpeed}s linear`;
+  strip.style.width = '100%';
+
+  if (st.hideRomaji) {
+    const revealDelay = Math.max(0, (st.apSpeed - 1) * 1000);
+    st.apRevealTimer = setTimeout(apUnblur, revealDelay);
+  }
+
+  st.apTimer = setTimeout(() => { if (st.autoplay) nav(1); }, st.apSpeed * 1000);
+}
+
+function stopAP() {
+  clearTimeout(st.apTimer);
+  clearTimeout(st.apRevealTimer);
+  const strip = document.getElementById('apStrip');
+  strip.style.transition = 'none'; strip.style.width = '0%';
+}
+
+function resetAP() { stopAP(); if (st.autoplay) startAP(); }
+
+function setSpeed(v) {
+  st.apSpeed = parseFloat(v);
+  if (st.autoplay) resetAP();
+}
+
+// ─────────────────────────────────────────────
+//  SHUFFLE & FILTERS
+// ─────────────────────────────────────────────
+function toggleShuffle() {
+  st.shuffle = !st.shuffle;
+  document.getElementById('shuffleBtn').classList.toggle('active', st.shuffle);
+  const cur = card()?.char;
+  buildDeck();
+  if (cur) {
+    const i = st.deck.findIndex(c => c.char === cur);
+    const oi = st.order.indexOf(i);
+    st.idx = oi >= 0 ? oi : 0;
+  }
+  render(0);
+}
+
+function toggleReview() {
+  st.reviewOnly = !st.reviewOnly;
+  const btn = document.getElementById('reviewBtn');
+  btn.classList.toggle('active', st.reviewOnly);
+  btn.textContent = st.reviewOnly ? '📚 Review ✓' : '📚 Review';
+  buildDeck(); st.idx = 0; render(0);
+}
+
+function peek() {
+  if (!st.hideRomaji) return;
+  document.getElementById('romajiEl').classList.remove('blurred');
+  document.getElementById('mnemonicRow').classList.remove('blurred');
+  clearTimeout(st.peekTimer);
+  st.peekTimer = setTimeout(() => {
+    document.getElementById('romajiEl').classList.add('blurred');
+    document.getElementById('mnemonicRow').classList.add('blurred');
+  }, 1500);
+}
+
+function toggleHideRomaji() {
+  st.hideRomaji = !st.hideRomaji;
+  const btn = document.getElementById('hideRomajiBtn');
+  btn.classList.toggle('active', st.hideRomaji);
+  btn.textContent = st.hideRomaji ? '👁 Show' : '👁 Hide';
+  document.getElementById('romajiEl').classList.toggle('blurred', st.hideRomaji);
+  document.getElementById('mnemonicRow').classList.toggle('blurred', st.hideRomaji);
+}
+
+function toggleAutoSound() {
+  st.autoSound = !st.autoSound;
+  const btn = document.getElementById('autoSoundBtn');
+  btn.classList.toggle('active', st.autoSound);
+  btn.textContent = st.autoSound ? '🔊 On' : '🔊 Sound';
+  if (st.autoSound) {
+    st.lastPlayedChar = card()?.char;
+    playAudio();
+  }
+}
+
+function setFilter(f) {
+  st.filter = f;
+  document.querySelectorAll('.ftab').forEach(b => b.classList.toggle('active', b.dataset.f === f));
+  buildDeck(); st.idx = 0; render(0);
+}
+
+function buildFilterTabs() {
+  const wrap = document.getElementById('filterTabs');
+  GROUPS.forEach(g => {
+    if (g === '|') {
+      const div = document.createElement('div');
+      div.style.cssText = 'flex:0 0 1px;background:var(--border);align-self:stretch;margin:4px 2px;';
+      wrap.appendChild(div);
+      return;
+    }
+    const b = document.createElement('button');
+    b.className = 'ftab' + (g === 'All' ? ' active' : '');
+    b.dataset.f = g;
+    b.textContent = (['K','S','T','N','H','M','Y','R','W','G','Z','D','B','P'].includes(g)) ? g + ' row' : g;
+    b.onclick = () => setFilter(g);
+    wrap.appendChild(b);
+  });
+}
+
+// ─────────────────────────────────────────────
+//  MODE TOGGLE
+// ─────────────────────────────────────────────
+function setMode(m) {
+  st.mode = m;
+  if (st.autoplay) toggleAutoplay();
+  document.getElementById('flashMode').style.display = m === 'flash' ? 'block' : 'none';
+  document.getElementById('quizMode').style.display  = m === 'quiz'  ? 'block' : 'none';
+  document.getElementById('mFlash').classList.toggle('active', m === 'flash');
+  document.getElementById('mQuiz').classList.toggle('active',  m === 'quiz');
+  if (m === 'quiz') nextQuiz();
+}
+
+// ─────────────────────────────────────────────
+//  QUIZ
+// ─────────────────────────────────────────────
+function nextQuiz() {
+  st.quiz.answered = false;
+  document.getElementById('qNext').style.display = 'none';
+
+  // Weight toward unknown cards
+  const unknown = CARDS.filter(c => !st.known[c.char]);
+  const pool = unknown.length >= 4 ? unknown : CARDS;
+  const correct = pool[Math.floor(Math.random() * pool.length)];
+  st.quiz.card = correct;
+
+  document.getElementById('qChar').textContent = correct.char;
+  document.getElementById('quizCard').className = 'quiz-card';
+
+  // Build 4 choices
+  const wrongs = CARDS.filter(c => c.romaji !== correct.romaji)
+    .sort(() => Math.random() - 0.5).slice(0, 3);
+  const opts = [...wrongs, correct].sort(() => Math.random() - 0.5);
+
+  const qc = document.getElementById('qChoices');
+  qc.innerHTML = '';
+  opts.forEach(o => {
+    const b = document.createElement('button');
+    b.className = 'choice';
+    b.textContent = o.romaji;
+    b.onclick = () => handleQuiz(o.romaji === correct.romaji, b, correct.romaji);
+    qc.appendChild(b);
+  });
+}
+
+function handleQuiz(isCorrect, btn, correctRomaji) {
+  if (st.quiz.answered) return;
+  st.quiz.answered = true; st.quiz.total++;
+
+  if (isCorrect) {
+    btn.classList.add('correct');
+    st.quiz.correct++; st.quiz.streak++;
+    document.getElementById('quizCard').classList.add('flash-g');
+  } else {
+    btn.classList.add('wrong');
+    st.quiz.streak = 0;
+    document.getElementById('quizCard').classList.add('flash-r');
+    document.querySelectorAll('.choice').forEach(b => {
+      if (b.textContent === correctRomaji) b.classList.add('correct');
+    });
+  }
+
+  document.querySelectorAll('.choice').forEach(b => b.disabled = true);
+  document.getElementById('qCorrect').textContent = st.quiz.correct;
+  document.getElementById('qTotal').textContent   = st.quiz.total;
+  document.getElementById('qStreak').textContent  = st.quiz.streak;
+
+  if (isCorrect) {
+    setTimeout(nextQuiz, 600);
+  } else {
+    document.getElementById('qNext').style.display = 'block';
+  }
+}
+
+// ─────────────────────────────────────────────
+//  REFERENCE CHART
+// ─────────────────────────────────────────────
+function toggleChart() {
+  const w = document.getElementById('chartWrap');
+  w.classList.toggle('open');
+}
+
+function toggleChartSound() {
+  st.chartSound = !st.chartSound;
+  const btn = document.getElementById('chartSoundBtn');
+  btn.classList.toggle('muted', !st.chartSound);
+  btn.textContent = st.chartSound ? '🔔 Chart audio' : '🔕 Chart audio';
+}
+
+function buildChart() {
+  const wrap = document.getElementById('chartWrap');
+  wrap.innerHTML = '';
+  const groups = [...new Set(CARDS.map(c => c.group))];
+  groups.forEach(g => {
+    const lbl = document.createElement('div');
+    lbl.className = 'chart-group-label';
+    lbl.textContent = groupLabel(g);
+    wrap.appendChild(lbl);
+
+    const grid = document.createElement('div');
+    grid.className = 'chart-grid';
+    CARDS.filter(c => c.group === g).forEach(c => {
+      const cell = document.createElement('div');
+      cell.className = 'chart-cell' + (st.known[c.char] ? ' known' : '');
+      cell.dataset.char = c.char;
+      cell.innerHTML = `<div class="ch">${c.char}</div><div class="ro">${c.romaji}</div>`;
+      cell.onclick = () => { if (st.chartSound) playAudio(c.char); };
+      cell.title = `${c.char} (${c.romaji}) — click to hear`;
+      wrap.appendChild(cell);
+    });
+    // Pad to row-of-5 grid
+    const r = CARDS.filter(c => c.group === g).length % 5;
+    if (r !== 0) for (let i = 0; i < 5 - r; i++) {
+      const ph = document.createElement('div'); wrap.appendChild(ph);
+    }
+  });
+}
+
+function refreshChart() {
+  document.querySelectorAll('.chart-cell').forEach(cell => {
+    cell.className = 'chart-cell' + (st.known[cell.dataset.char] ? ' known' : '');
+  });
+}
+
+// ─────────────────────────────────────────────
+//  KEYBOARD SHORTCUTS
+// ─────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown')  { e.preventDefault(); if (st.mode==='flash') nav(1); }
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')    { e.preventDefault(); if (st.mode==='flash') nav(-1); }
+  if (e.key === ' ')           { e.preventDefault(); if (st.mode==='flash') playAudio(); }
+  if (e.key === 'k' || e.key === 'K') { e.preventDefault(); if (st.mode==='flash') toggleKnown(); }
+  if (e.key === 'a' || e.key === 'A') { e.preventDefault(); if (st.mode==='flash') toggleAutoplay(); }
+});
+
+// ─────────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────────
+buildFilterTabs();
+buildDeck();
+buildChart();
+render(0);
+updateProgress();
+</script>
+
+
+</body></html>
