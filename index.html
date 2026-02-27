@@ -70,10 +70,27 @@
     .reset-btn:hover { color: var(--red); }
 
     /* ── Filter tabs ── */
+    .filter-wrap {
+      display: flex; align-items: center; gap: 4px;
+      margin-bottom: 10px;
+    }
+    .filter-arrow {
+      flex: 0 0 auto;
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 1rem; font-weight: 700;
+      cursor: pointer; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+    .filter-arrow:hover { border-color: var(--primary); color: var(--primary); }
     .filter-scroll {
       display: flex; gap: 6px;
       overflow-x: auto; padding-bottom: 3px;
-      margin-bottom: 10px;
+      flex: 1; min-width: 0;
       scrollbar-width: none;
     }
     .filter-scroll::-webkit-scrollbar { display: none; }
@@ -436,7 +453,11 @@
   </div>
 
   <div style="margin-top:12px">
-    <div class="filter-scroll" id="filterTabs"><button class="ftab" data-f="All">All</button><button class="ftab" data-f="Vowels">Vowels</button><button class="ftab" data-f="K">K row</button><button class="ftab" data-f="S">S row</button><button class="ftab" data-f="T">T row</button><button class="ftab" data-f="N">N row</button><button class="ftab" data-f="H">H row</button><button class="ftab" data-f="M">M row</button><button class="ftab" data-f="Y">Y row</button><button class="ftab" data-f="R">R row</button><button class="ftab" data-f="W">W row</button><button class="ftab" data-f="Special">Special</button><div style="flex: 0 0 1px; background: var(--border); align-self: stretch; margin: 4px 2px;"></div><button class="ftab" data-f="Dakuten">Dakuten</button><button class="ftab" data-f="G">G row</button><button class="ftab" data-f="Z">Z row</button><button class="ftab" data-f="D">D row</button><button class="ftab" data-f="B">B row</button><button class="ftab" data-f="P">P row</button><div style="flex: 0 0 1px; background: var(--border); align-self: stretch; margin: 4px 2px;"></div><button class="ftab active" data-f="Combos">Combos</button><button class="ftab" data-f="KY">KY</button><button class="ftab" data-f="SH">SH</button><button class="ftab" data-f="CH">CH</button><button class="ftab" data-f="NY">NY</button><button class="ftab" data-f="HY">HY</button><button class="ftab" data-f="MY">MY</button><button class="ftab" data-f="RY">RY</button><button class="ftab" data-f="GY">GY</button><button class="ftab" data-f="J">J</button><button class="ftab" data-f="BY">BY</button><button class="ftab" data-f="PY">PY</button><button class="ftab" data-f="⭐ Review">⭐ Review</button></div>
+    <div class="filter-wrap">
+      <button class="filter-arrow" onclick="scrollFilter(-1)" title="Scroll left">&#8249;</button>
+      <div class="filter-scroll" id="filterTabs"></div>
+      <button class="filter-arrow" onclick="scrollFilter(1)" title="Scroll right">&#8250;</button>
+    </div>
   </div>
 
   <div class="mode-row">
@@ -998,8 +1019,13 @@ function setFilter(f) {
   buildDeck(); st.idx = 0; render(0);
 }
 
+function scrollFilter(dir) {
+  document.getElementById('filterTabs').scrollBy({ left: dir * 150, behavior: 'smooth' });
+}
+
 function buildFilterTabs() {
   const wrap = document.getElementById('filterTabs');
+  wrap.innerHTML = '';
   GROUPS.forEach(g => {
     if (g === '|') {
       const div = document.createElement('div');
