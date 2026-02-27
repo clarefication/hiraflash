@@ -433,6 +433,75 @@
     }
     .empty-state .e-icon { font-size: 3rem; margin-bottom: 12px; }
     .empty-state p { font-size: 0.9rem; }
+
+    /* ── Help ── */
+    .header { position: relative; }
+    .help-wrap { position: absolute; top: 0; right: 0; }
+    .help-btn {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 2px solid var(--primary);
+      background: var(--primary);
+      color: #fff;
+      font-size: 0.82rem; font-weight: 800;
+      cursor: pointer; font-family: inherit; line-height: 1;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .help-btn:hover { background: var(--primary2); border-color: var(--primary2); }
+    .help-dropdown {
+      display: none;
+      position: absolute; top: 36px; right: 0;
+      width: 290px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.13);
+      z-index: 200;
+      overflow: hidden;
+      animation: helpIn 0.18s ease;
+    }
+    @keyframes helpIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: none; }
+    }
+    .help-dropdown.open { display: block; }
+    .help-hdr {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 13px 15px 11px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+    }
+    .help-hdr span { font-size: 0.82rem; font-weight: 700; color: var(--text); }
+    .help-close {
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); font-size: 1rem; line-height: 1;
+      padding: 0; font-family: inherit; transition: color 0.12s;
+    }
+    .help-close:hover { color: var(--text); }
+    .help-body {
+      padding: 14px 15px;
+      max-height: 420px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+    .help-section { margin-bottom: 15px; }
+    .help-section:last-child { margin-bottom: 0; }
+    .help-section h3 {
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.7px; color: var(--primary);
+      margin-bottom: 7px;
+    }
+    .help-section p {
+      font-size: 0.79rem; color: var(--text); line-height: 1.5; margin-bottom: 4px;
+    }
+    .help-row {
+      display: flex; gap: 8px;
+      font-size: 0.79rem; margin-bottom: 4px; align-items: baseline;
+    }
+    .help-row .hl { font-weight: 700; color: var(--text); min-width: 80px; flex-shrink: 0; }
+    .help-row .hd { color: #6b6455; line-height: 1.45; }
+    .help-divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
   </style>
 </head>
 <body>
@@ -441,6 +510,91 @@
   <header class="header">
     <h1 class="title">Hira<em>flash</em></h1>
     <p class="subtitle">Learn all 108 hiragana — dakuten, combos &amp; more</p>
+
+    <div class="help-wrap" id="helpWrap">
+      <button class="help-btn" onclick="toggleHelp()" title="Help">?</button>
+      <div class="help-dropdown" id="helpDropdown">
+        <div class="help-hdr">
+          <span>How to use Hiraflash</span>
+          <button class="help-close" onclick="toggleHelp()">✕</button>
+        </div>
+        <div class="help-body">
+
+          <div class="help-section">
+            <h3>What is Hiraflash?</h3>
+            <p>Hiraflash is a flashcard app for learning all 108 hiragana — the Japanese phonetic alphabet used to write native words and grammar. It covers basic kana, voiced sounds (dakuten ゛), semi-voiced sounds (handakuten ゜), and combination characters (yōon).</p>
+          </div>
+
+          <hr class="help-divider">
+
+          <div class="help-section">
+            <h3>Filter tabs</h3>
+            <p>The scrollable tab bar lets you study a specific group rather than all 108 at once.</p>
+            <div class="help-row"><span class="hl">All</span><span class="hd">Every hiragana character</span></div>
+            <div class="help-row"><span class="hl">Vowels</span><span class="hd">あ い う え お</span></div>
+            <div class="help-row"><span class="hl">K / S / T… row</span><span class="hd">The 5 characters in that consonant row</span></div>
+            <div class="help-row"><span class="hl">Special</span><span class="hd">ん (n) and っ (double consonant)</span></div>
+            <div class="help-row"><span class="hl">Dakuten</span><span class="hd">All voiced rows: G, Z, D, B combined</span></div>
+            <div class="help-row"><span class="hl">Combos</span><span class="hd">All yōon combos (e.g. きゃ, しゅ, ちょ)</span></div>
+            <div class="help-row"><span class="hl">⭐ Review</span><span class="hd">Only cards not yet marked as known</span></div>
+            <p style="margin-top:5px">Use the <strong>‹ ›</strong> arrows to scroll the tab strip without a mouse wheel.</p>
+          </div>
+
+          <hr class="help-divider">
+
+          <div class="help-section">
+            <h3>📇 Flashcard mode</h3>
+            <p>Each card shows a hiragana character. The romaji reading and memory trick are revealed by default — or hidden if you enable <strong>👁 Hide</strong> for self-testing.</p>
+            <div class="help-row"><span class="hl">🔊 Audio btn</span><span class="hd">Hear the pronunciation</span></div>
+            <div class="help-row"><span class="hl">✓ Know it</span><span class="hd">Mark this card as learned; it turns green and counts toward your progress</span></div>
+            <div class="help-row"><span class="hl">Prev / Next</span><span class="hd">Navigate through the deck</span></div>
+          </div>
+
+          <hr class="help-divider">
+
+          <div class="help-section">
+            <h3>🎯 Quiz mode</h3>
+            <p>A character is shown — pick the correct romaji from 4 options. Your score, total answered, and current streak are shown below the choices.</p>
+          </div>
+
+          <hr class="help-divider">
+
+          <div class="help-section">
+            <h3>Controls</h3>
+            <div class="help-row"><span class="hl">▶ Autoplay</span><span class="hd">Auto-advance cards at the chosen interval (1.5 – 5 s)</span></div>
+            <div class="help-row"><span class="hl">⇄ Shuffle</span><span class="hd">Randomise the card order</span></div>
+            <div class="help-row"><span class="hl">📚 Review</span><span class="hd">Show only cards not yet marked known; tap <em>Show all cards</em> to exit</span></div>
+            <div class="help-row"><span class="hl">👁 Hide</span><span class="hd">Blur the romaji and mnemonic; click the card to peek briefly</span></div>
+            <div class="help-row"><span class="hl">🔊 Sound</span><span class="hd">Auto-play audio every time a new card appears</span></div>
+          </div>
+
+          <hr class="help-divider">
+
+          <div class="help-section">
+            <h3>Reference chart</h3>
+            <p>Expand the full chart at the bottom to see all characters at a glance. <strong>Green cells</strong> are cards you've marked as known. Click any cell to hear it (when <strong>🔔 Chart audio</strong> is on).</p>
+          </div>
+
+          <hr class="help-divider">
+
+          <div class="help-section">
+            <h3>Progress &amp; reset</h3>
+            <p>The progress bar tracks how many of the 108 characters you've marked as known. Click <strong>↺ Reset</strong> to clear all progress (a confirmation is required).</p>
+          </div>
+
+          <hr class="help-divider">
+
+          <div class="help-section">
+            <h3>Keyboard shortcuts</h3>
+            <div class="help-row"><span class="hl">← →</span><span class="hd">Previous / next card</span></div>
+            <div class="help-row"><span class="hl">Space</span><span class="hd">Play audio</span></div>
+            <div class="help-row"><span class="hl">K</span><span class="hd">Toggle known / unknown</span></div>
+            <div class="help-row"><span class="hl">A</span><span class="hd">Toggle autoplay</span></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
   </header>
 
   <div class="prog-label">
@@ -743,6 +897,16 @@ const st = {
 
 try { const s = localStorage.getItem('hira-v2'); if (s) st.known = JSON.parse(s); } catch(e){}
 function save() { try { localStorage.setItem('hira-v2', JSON.stringify(st.known)); } catch(e){} }
+
+function toggleHelp() {
+  document.getElementById('helpDropdown').classList.toggle('open');
+}
+document.addEventListener('click', e => {
+  const wrap = document.getElementById('helpWrap');
+  if (wrap && !wrap.contains(e.target)) {
+    document.getElementById('helpDropdown').classList.remove('open');
+  }
+});
 
 function resetProgress() {
   if (!confirm('Reset all progress? All "known" marks will be cleared.')) return;
