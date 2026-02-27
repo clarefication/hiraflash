@@ -894,11 +894,17 @@ function toggleKnown() {
 // ─────────────────────────────────────────────
 //  AUDIO
 // ─────────────────────────────────────────────
+// Particle kana → katakana so TTS reads phonetically (は=ha, へ=he, を=wo)
+const TTS_OVERRIDES = { 'は':'ハ', 'へ':'ヘ', 'を':'ヲ' };
+function ttsText(char) {
+  return char.split('').map(ch => TTS_OVERRIDES[ch] || ch).join('');
+}
+
 function playAudio(charOverride) {
   const c = charOverride ? CARDS.find(x => x.char === charOverride) : card();
   if (!c) return;
   window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(c.char);
+  const u = new SpeechSynthesisUtterance(ttsText(c.char));
   u.lang = 'ja-JP'; u.rate = 0.75; u.pitch = 1.0;
   const btn = document.getElementById('audioBtn');
   if (btn) btn.classList.add('playing');
