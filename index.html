@@ -460,7 +460,8 @@
 
     /* ── Help ── */
     .header { position: relative; }
-    .help-wrap { position: absolute; top: 0; right: 0; }
+    .hdr-actions { position: absolute; top: 0; right: 0; display: flex; gap: 6px; align-items: flex-start; }
+    .help-wrap, .theme-wrap { position: relative; }
     .help-btn {
       width: 28px; height: 28px;
       border-radius: 50%;
@@ -595,6 +596,76 @@
       user-select: none;
     }
     .welcome-skip-label input { cursor: pointer; accent-color: var(--primary); }
+
+    /* ── Theme picker ── */
+    .theme-btn {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: var(--surface2);
+      color: var(--primary);
+      cursor: pointer; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+    .theme-btn:hover { border-color: var(--primary); background: var(--surface); }
+    .theme-picker {
+      display: none;
+      position: absolute; top: 36px; right: 0;
+      width: 248px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 8px 36px rgba(42,37,32,0.14);
+      z-index: 201;
+      overflow: hidden;
+      animation: helpIn 0.18s ease;
+    }
+    .theme-picker.open { display: block; }
+    .theme-picker-hdr {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 15px 10px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+    }
+    .theme-picker-hdr span { font-size: 0.82rem; font-weight: 700; color: var(--text); }
+    .theme-swatches {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      padding: 14px;
+    }
+    .tswatch {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 5px;
+      background: none; border: none;
+      cursor: pointer; padding: 0;
+      font-family: inherit;
+    }
+    .tswatch-preview {
+      width: 100%; aspect-ratio: 3/2;
+      border-radius: 9px; overflow: hidden;
+      border: 2px solid transparent;
+      transition: border-color 0.15s, transform 0.12s;
+      position: relative;
+      box-shadow: 0 1px 4px rgba(42,37,32,0.10);
+    }
+    .tswatch:hover .tswatch-preview { transform: scale(1.06); }
+    .tswatch.active .tswatch-preview { border-color: var(--primary); }
+    .tswatch-label {
+      font-size: 0.62rem; font-weight: 700;
+      color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px;
+      transition: color 0.15s;
+    }
+    .tswatch.active .tswatch-label { color: var(--primary); }
+    .tswatch-pattern-tag {
+      position: absolute; top: 4px; left: 4px;
+      font-size: 0.5rem; font-weight: 800;
+      padding: 1px 4px; border-radius: 3px;
+      background: rgba(255,255,255,0.22);
+      color: rgba(255,255,255,0.9);
+      letter-spacing: 0.3px; text-transform: uppercase;
+    }
   </style>
 </head>
 <body>
@@ -626,6 +697,22 @@
       <button class="sbtn" id="sBtnKata" onclick="setScript('kata')">Katakana</button>
     </div>
 
+    <div class="hdr-actions">
+    <div class="theme-wrap" id="themeWrap">
+      <button class="theme-btn" onclick="toggleThemePicker()" title="Change theme">
+        <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor">
+          <circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="2"/>
+          <circle cx="10" cy="4.5" r="1.8"/><circle cx="14.8" cy="13" r="1.8"/><circle cx="5.2" cy="13" r="1.8"/>
+        </svg>
+      </button>
+      <div class="theme-picker" id="themePicker">
+        <div class="theme-picker-hdr">
+          <span>Choose theme</span>
+          <button class="help-close" onclick="toggleThemePicker()">✕</button>
+        </div>
+        <div class="theme-swatches" id="themeSwatches"></div>
+      </div>
+    </div>
     <div class="help-wrap" id="helpWrap">
       <button class="help-btn" onclick="toggleHelp()" title="Help">?</button>
       <div class="help-dropdown" id="helpDropdown">
@@ -717,6 +804,7 @@
         </div>
       </div>
     </div>
+    </div><!-- /.hdr-actions -->
   </header>
 
   <div class="prog-label">
@@ -1195,11 +1283,16 @@ function setScript(s) {
 
 function toggleHelp() {
   document.getElementById('helpDropdown').classList.toggle('open');
+  document.getElementById('themePicker').classList.remove('open');
 }
 document.addEventListener('click', e => {
-  const wrap = document.getElementById('helpWrap');
-  if (wrap && !wrap.contains(e.target)) {
+  const helpWrap = document.getElementById('helpWrap');
+  if (helpWrap && !helpWrap.contains(e.target)) {
     document.getElementById('helpDropdown').classList.remove('open');
+  }
+  const themeWrap = document.getElementById('themeWrap');
+  if (themeWrap && !themeWrap.contains(e.target)) {
+    document.getElementById('themePicker').classList.remove('open');
   }
 });
 
@@ -1717,6 +1810,170 @@ document.getElementById('nameInput').addEventListener('keydown', e => {
 });
 
 // ─────────────────────────────────────────────
+//  THEMES
+// ─────────────────────────────────────────────
+const THEMES = {
+  wabi: {
+    label: 'Wabi',
+    dots: ['#F3EFE5', '#788176', '#CCB999'],
+    vars: {
+      '--bg':'#F3EFE5','--surface':'#FFFFFF','--surface2':'#EAE6DB',
+      '--border':'#DDD8CB','--primary':'#788176','--primary2':'#5C6459',
+      '--accent':'#CCB999','--green':'#617A52','--red':'#B84030',
+      '--text':'#2A2520','--muted':'#8C887E',
+    },
+  },
+  sumi: {
+    label: 'Sumi',
+    dots: ['#18160F', '#C9A96E', '#EDE8DC'],
+    vars: {
+      '--bg':'#18160F','--surface':'#24211A','--surface2':'#2E2B23',
+      '--border':'#3A362C','--primary':'#C9A96E','--primary2':'#A8864E',
+      '--accent':'#8B7355','--green':'#6B9E6B','--red':'#C06050',
+      '--text':'#EDE8DC','--muted':'#7A7468',
+    },
+  },
+  matcha: {
+    label: 'Matcha',
+    dots: ['#EFF4EC', '#3D6B45', '#8CAF7E'],
+    vars: {
+      '--bg':'#EFF4EC','--surface':'#FFFFFF','--surface2':'#E3EBE0',
+      '--border':'#C8D8C4','--primary':'#3D6B45','--primary2':'#2C5234',
+      '--accent':'#8CAF7E','--green':'#5A8A5A','--red':'#A8402A',
+      '--text':'#1E2E1E','--muted':'#6B826B',
+    },
+  },
+  sakura: {
+    label: 'Sakura',
+    dots: ['#F8F0F2', '#9B6B7E', '#D4A8BC'],
+    vars: {
+      '--bg':'#F8F0F2','--surface':'#FFFFFF','--surface2':'#F0E8EC',
+      '--border':'#E0D0D8','--primary':'#9B6B7E','--primary2':'#7A4E62',
+      '--accent':'#D4A8BC','--green':'#6B8C6B','--red':'#B84040',
+      '--text':'#2A1E22','--muted':'#9A8A90',
+    },
+  },
+  shoji: {
+    label: 'Shoji',
+    dots: ['#F7F5F0', '#3A3530', '#9B9488'],
+    vars: {
+      '--bg':'#F7F5F0','--surface':'#FDFCFA','--surface2':'#EDEBE5',
+      '--border':'#D8D5CC','--primary':'#3A3530','--primary2':'#1A1815',
+      '--accent':'#9B9488','--green':'#507050','--red':'#A03020',
+      '--text':'#1A1815','--muted':'#8A857E',
+    },
+  },
+  seigaiha: {
+    label: 'Seigaiha',
+    dots: ['#0F2A36', '#D4A96E', '#6BAEC8'],
+    vars: {
+      '--bg':'#0F2A36','--surface':'#1A3A4A','--surface2':'#1E4455',
+      '--border':'#2A5468','--primary':'#D4A96E','--primary2':'#B88A4E',
+      '--accent':'#6BAEC8','--green':'#5A9E6B','--red':'#C06050',
+      '--text':'#EDF4F8','--muted':'#7AAAC0',
+    },
+    pattern: {
+      image: 'radial-gradient(ellipse 50% 50% at 50% 100%, transparent 68%, rgba(255,255,255,0.055) 69%, rgba(255,255,255,0.055) 72%, transparent 73%), radial-gradient(ellipse 50% 50% at 50% 100%, transparent 68%, rgba(255,255,255,0.055) 69%, rgba(255,255,255,0.055) 72%, transparent 73%)',
+      size: '60px 30px',
+      position: '0 0, 30px 15px',
+    },
+  },
+  asanoha: {
+    label: 'Asanoha',
+    dots: ['#FAF6EE', '#B87C2A', '#E8C472'],
+    vars: {
+      '--bg':'#FAF6EE','--surface':'#FFFFFF','--surface2':'#F2EBD8',
+      '--border':'#DDD0B8','--primary':'#B87C2A','--primary2':'#8A5C18',
+      '--accent':'#E8C472','--green':'#5A8050','--red':'#C04030',
+      '--text':'#2A1E0E','--muted':'#9A8A6A',
+    },
+    pattern: {
+      image: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cline x1='20' y1='4' x2='20' y2='36' stroke='rgba(184,124,42,0.11)' stroke-width='1'/%3E%3Cline x1='4' y1='20' x2='36' y2='20' stroke='rgba(184,124,42,0.11)' stroke-width='1'/%3E%3Cline x1='8' y1='8' x2='32' y2='32' stroke='rgba(184,124,42,0.11)' stroke-width='1'/%3E%3Cline x1='32' y1='8' x2='8' y2='32' stroke='rgba(184,124,42,0.11)' stroke-width='1'/%3E%3Ccircle cx='20' cy='20' r='2' fill='rgba(184,124,42,0.08)'/%3E%3C/svg%3E\")",
+      size: '40px 40px',
+      position: '0 0',
+    },
+  },
+};
+
+let currentTheme = 'wabi';
+
+function buildThemeSwatches() {
+  const container = document.getElementById('themeSwatches');
+  container.innerHTML = '';
+  for (const [id, theme] of Object.entries(THEMES)) {
+    const btn = document.createElement('button');
+    btn.className = 'tswatch' + (id === currentTheme ? ' active' : '');
+    btn.dataset.theme = id;
+    btn.title = theme.label;
+    btn.onclick = () => applyTheme(id);
+
+    const preview = document.createElement('div');
+    preview.className = 'tswatch-preview';
+    preview.style.background = theme.dots[0];
+
+    // Apply pattern to swatch preview if applicable
+    if (theme.pattern) {
+      preview.style.backgroundImage = theme.pattern.image;
+      preview.style.backgroundSize = theme.pattern.size;
+      preview.style.backgroundPosition = theme.pattern.position;
+      const tag = document.createElement('div');
+      tag.className = 'tswatch-pattern-tag';
+      tag.textContent = '✦';
+      preview.appendChild(tag);
+    }
+
+    // Primary color band at bottom
+    const band = document.createElement('div');
+    band.style.cssText = `position:absolute;bottom:0;left:0;right:0;height:42%;background:${theme.dots[1]};`;
+    preview.appendChild(band);
+
+    // Accent dot
+    const dot = document.createElement('div');
+    dot.style.cssText = `position:absolute;bottom:8px;right:7px;width:9px;height:9px;border-radius:50%;background:${theme.dots[2]};border:1.5px solid rgba(255,255,255,0.55);`;
+    preview.appendChild(dot);
+
+    const label = document.createElement('span');
+    label.className = 'tswatch-label';
+    label.textContent = theme.label;
+
+    btn.appendChild(preview);
+    btn.appendChild(label);
+    container.appendChild(btn);
+  }
+}
+
+function applyTheme(id) {
+  const theme = THEMES[id];
+  if (!theme) return;
+  const root = document.documentElement;
+  for (const [k, v] of Object.entries(theme.vars)) {
+    root.style.setProperty(k, v);
+  }
+  if (theme.pattern) {
+    document.body.style.backgroundImage = theme.pattern.image;
+    document.body.style.backgroundSize = theme.pattern.size;
+    document.body.style.backgroundPosition = theme.pattern.position;
+    document.body.style.backgroundAttachment = 'fixed';
+  } else {
+    document.body.style.backgroundImage = '';
+    document.body.style.backgroundSize = '';
+    document.body.style.backgroundPosition = '';
+    document.body.style.backgroundAttachment = '';
+  }
+  document.querySelectorAll('.tswatch').forEach(el => {
+    el.classList.toggle('active', el.dataset.theme === id);
+  });
+  localStorage.setItem('mojiflash-theme', id);
+  currentTheme = id;
+}
+
+function toggleThemePicker() {
+  const picker = document.getElementById('themePicker');
+  const isOpen = picker.classList.toggle('open');
+  if (isOpen) document.getElementById('helpDropdown').classList.remove('open');
+}
+
+// ─────────────────────────────────────────────
 //  INIT
 // ─────────────────────────────────────────────
 st.known = st.knownHira;
@@ -1733,6 +1990,12 @@ applyUserName();
 if (!localStorage.getItem('kana-welcome-seen')) {
   document.getElementById('welcomeOverlay').classList.add('open');
 }
+
+// Load saved theme
+const savedTheme = localStorage.getItem('mojiflash-theme') || 'wabi';
+currentTheme = savedTheme;
+buildThemeSwatches();
+if (savedTheme !== 'wabi') applyTheme(savedTheme);
 </script>
 
 
