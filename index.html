@@ -3,7 +3,7 @@
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hiraflash</title>
+  <title>Kanaflash</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -41,6 +41,9 @@
     .title  { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; }
     .title em { font-style: normal; color: var(--primary); }
     .subtitle { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+    .script-row { display:inline-flex; gap:0; background:var(--surface2); border-radius:10px; padding:3px; margin:10px auto 0; }
+    .sbtn { padding:6px 18px; border:none; border-radius:8px; background:transparent; color:var(--muted); font-size:0.80rem; font-weight:700; cursor:pointer; font-family:inherit; transition:all 0.18s; }
+    .sbtn.active { background:var(--surface); color:var(--primary); box-shadow:0 1px 6px rgba(0,0,0,0.10); }
 
     /* ── Progress ── */
     .prog-bar-wrap {
@@ -283,6 +286,23 @@
       cursor: pointer;
     }
 
+    /* ── Script switch button (on card) ── */
+    .script-switch-btn {
+      width: 100%; margin-top: 13px;
+      padding: 7px 12px;
+      border-radius: 9px; border: 1.5px solid var(--border);
+      background: transparent; color: var(--muted);
+      font-size: 0.76rem; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: all 0.15s;
+    }
+    .script-switch-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .sw-char {
+      font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", sans-serif;
+      font-size: 1.15em; line-height: 1;
+    }
+
     /* card slide animations */
     @keyframes slideR { from { opacity:0; transform: translateX(28px); } to { opacity:1; transform: none; } }
     @keyframes slideL { from { opacity:0; transform: translateX(-28px); } to { opacity:1; transform: none; } }
@@ -502,40 +522,137 @@
     .help-row .hl { font-weight: 700; color: var(--text); min-width: 80px; flex-shrink: 0; }
     .help-row .hd { color: #6b6455; line-height: 1.45; }
     .help-divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+
+    /* ── Welcome overlay ── */
+    .welcome-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(24,22,15,0.55);
+      backdrop-filter: blur(5px);
+      z-index: 600;
+      align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .welcome-overlay.open { display: flex; }
+    .welcome-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 36px 30px 28px;
+      max-width: 420px; width: 100%;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.22);
+      animation: welcomeIn 0.28s cubic-bezier(.22,.68,0,1.2);
+      text-align: center;
+    }
+    @keyframes welcomeIn {
+      from { opacity:0; transform: translateY(-18px) scale(0.96); }
+      to   { opacity:1; transform: none; }
+    }
+    .welcome-icon { font-size: 2.8rem; margin-bottom: 12px; line-height: 1; }
+    .welcome-title {
+      font-size: 1.35rem; font-weight: 800; letter-spacing: -0.4px;
+      color: var(--text); margin-bottom: 10px;
+    }
+    .welcome-title em { font-style: normal; color: var(--primary); }
+    .welcome-desc {
+      font-size: 0.84rem; color: #6b6455; line-height: 1.55;
+      margin-bottom: 22px;
+    }
+    .welcome-name-wrap {
+      text-align: left; margin-bottom: 20px;
+    }
+    .welcome-name-label {
+      display: block; font-size: 0.78rem; font-weight: 700;
+      color: var(--muted); margin-bottom: 7px; letter-spacing: 0.2px;
+    }
+    .welcome-input {
+      width: 100%; padding: 10px 14px;
+      border: 1.5px solid var(--border); border-radius: 10px;
+      background: var(--surface2); color: var(--text);
+      font-size: 0.95rem; font-family: inherit;
+      transition: border-color 0.15s, background 0.15s;
+      outline: none;
+    }
+    .welcome-input::placeholder { color: var(--muted); }
+    .welcome-input:focus { border-color: var(--primary); background: var(--surface); }
+    .welcome-go-btn {
+      width: 100%; padding: 12px;
+      border-radius: 12px; border: none;
+      background: var(--primary); color: #fff;
+      font-size: 0.95rem; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+      transition: background 0.15s;
+      margin-bottom: 14px;
+    }
+    .welcome-go-btn:hover { background: var(--primary2); }
+    .welcome-skip-label {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.76rem; color: var(--muted); cursor: pointer;
+      user-select: none;
+    }
+    .welcome-skip-label input { cursor: pointer; accent-color: var(--primary); }
   </style>
 </head>
 <body>
+
+<!-- ── Welcome overlay ── -->
+<div class="welcome-overlay" id="welcomeOverlay">
+  <div class="welcome-card">
+    <div class="welcome-icon">🌸</div>
+    <h2 class="welcome-title">Welcome to Kana<em>flash</em>!</h2>
+    <p class="welcome-desc">Learn all 216 Japanese kana — 108 hiragana and 108 katakana — with flashcards, mnemonics, audio, and a built-in quiz. Track your progress per script and study any group or combination you like.</p>
+    <div class="welcome-name-wrap">
+      <label class="welcome-name-label" for="nameInput">What's your name? 👋</label>
+      <input class="welcome-input" id="nameInput" type="text" placeholder="Enter your name…" maxlength="24" autocomplete="off" spellcheck="false">
+    </div>
+    <button class="welcome-go-btn" onclick="closeWelcome()">Let's go! 🚀</button>
+    <label class="welcome-skip-label">
+      <input type="checkbox" id="dontShowAgain"> Don't show this again
+    </label>
+  </div>
+</div>
+
 <div class="app">
 
   <header class="header">
-    <h1 class="title">Hira<em>flash</em></h1>
-    <p class="subtitle">Learn all 108 hiragana — dakuten, combos &amp; more</p>
+    <h1 class="title"><span id="userNamePrefix"></span>Kana<em>flash</em></h1>
+    <p class="subtitle" id="subtitle">Learn all 108 hiragana — dakuten, combos &amp; more</p>
+    <div class="script-row" id="scriptRow">
+      <button class="sbtn active" id="sBtnHira" onclick="setScript('hira')">Hiragana</button>
+      <button class="sbtn" id="sBtnKata" onclick="setScript('kata')">Katakana</button>
+    </div>
 
     <div class="help-wrap" id="helpWrap">
       <button class="help-btn" onclick="toggleHelp()" title="Help">?</button>
       <div class="help-dropdown" id="helpDropdown">
         <div class="help-hdr">
-          <span>How to use Hiraflash</span>
+          <span>How to use Kanaflash</span>
           <button class="help-close" onclick="toggleHelp()">✕</button>
         </div>
         <div class="help-body">
 
           <div class="help-section">
-            <h3>What is Hiraflash?</h3>
-            <p>Hiraflash is a flashcard app for learning all 108 hiragana — the Japanese phonetic alphabet used to write native words and grammar. It covers basic kana, voiced sounds (dakuten ゛), semi-voiced sounds (handakuten ゜), and combination characters (yōon).</p>
+            <h3>What is Kanaflash?</h3>
+            <p>Kanaflash is a flashcard app for learning all 216 Japanese kana — 108 hiragana and 108 katakana. Both scripts share the same sounds; hiragana is used for native words and grammar, katakana for foreign loanwords and emphasis. Each covers basic kana, voiced sounds (dakuten ゛), semi-voiced sounds (handakuten ゜), and combination characters (yōon).</p>
+          </div>
+
+          <hr class="help-divider">
+
+          <div class="help-section">
+            <h3>Hiragana / Katakana toggle</h3>
+            <p>Switch between scripts using the toggle below the title. Progress is tracked separately for each script, so mastering one won't affect the other.</p>
           </div>
 
           <hr class="help-divider">
 
           <div class="help-section">
             <h3>Filter tabs</h3>
-            <p>The scrollable tab bar lets you study a specific group rather than all 108 at once.</p>
-            <div class="help-row"><span class="hl">All</span><span class="hd">Every hiragana character</span></div>
-            <div class="help-row"><span class="hl">Vowels</span><span class="hd">あ い う え お</span></div>
+            <p>The scrollable tab bar lets you study a specific group. <strong>Click multiple tabs</strong> to combine groups — the deck shows the union of everything selected.</p>
+            <div class="help-row"><span class="hl">All</span><span class="hd">Every character in the active script</span></div>
+            <div class="help-row"><span class="hl">Vowels</span><span class="hd">a i u e o (あいうえお / アイウエオ)</span></div>
             <div class="help-row"><span class="hl">K / S / T… row</span><span class="hd">The 5 characters in that consonant row</span></div>
-            <div class="help-row"><span class="hl">Special</span><span class="hd">ん (n) and っ (double consonant)</span></div>
+            <div class="help-row"><span class="hl">Special</span><span class="hd">ん/ン (n) and っ/ッ (double consonant)</span></div>
             <div class="help-row"><span class="hl">Dakuten</span><span class="hd">All voiced rows: G, Z, D, B combined</span></div>
-            <div class="help-row"><span class="hl">Combos</span><span class="hd">All yōon combos (e.g. きゃ, しゅ, ちょ)</span></div>
+            <div class="help-row"><span class="hl">Combos</span><span class="hd">All yōon combos (e.g. きゃ / キャ)</span></div>
             <div class="help-row"><span class="hl">⭐ Review</span><span class="hd">Only cards not yet marked as known</span></div>
             <p style="margin-top:5px">Use the <strong>‹ ›</strong> arrows to scroll the tab strip without a mouse wheel.</p>
           </div>
@@ -544,7 +661,7 @@
 
           <div class="help-section">
             <h3>📇 Flashcard mode</h3>
-            <p>Each card shows a hiragana character. The romaji reading and memory trick are revealed by default — or hidden if you enable <strong>👁 Hide</strong> for self-testing.</p>
+            <p>Each card shows a kana character. The romaji reading and memory trick are revealed by default — or hidden if you enable <strong>👁 Hide</strong> for self-testing.</p>
             <div class="help-row"><span class="hl">🔊 Audio btn</span><span class="hd">Hear the pronunciation</span></div>
             <div class="help-row"><span class="hl">✓ Know it</span><span class="hd">Mark this card as learned; it turns green and counts toward your progress</span></div>
             <div class="help-row"><span class="hl">Prev / Next</span><span class="hd">Navigate through the deck</span></div>
@@ -554,7 +671,7 @@
 
           <div class="help-section">
             <h3>🎯 Quiz mode</h3>
-            <p>A character is shown — pick the correct romaji from 4 options. Your score, total answered, and current streak are shown below the choices.</p>
+            <p>A character is shown — pick the correct romaji from 4 options. The quiz respects your active filter tabs, so you can drill a single row or any combination of groups. Your score, total answered, and current streak are shown below the choices.</p>
           </div>
 
           <hr class="help-divider">
@@ -572,14 +689,14 @@
 
           <div class="help-section">
             <h3>Reference chart</h3>
-            <p>Expand the full chart at the bottom to see all characters at a glance. <strong>Green cells</strong> are cards you've marked as known. Click any cell to hear it (when <strong>🔔 Chart audio</strong> is on).</p>
+            <p>Expand the full chart at the bottom to see all characters at a glance. <strong>Green cells</strong> are cards you've marked as known. Click any cell to hear it (when <strong>🔔 Chart audio</strong> is on). The chart updates when you switch scripts.</p>
           </div>
 
           <hr class="help-divider">
 
           <div class="help-section">
             <h3>Progress &amp; reset</h3>
-            <p>The progress bar tracks how many of the 108 characters you've marked as known. Click <strong>↺ Reset</strong> to clear all progress (a confirmation is required).</p>
+            <p>The progress bar tracks how many of the 108 characters in the active script you've marked as known. Resetting only clears the current script's progress. Click <strong>↺ Reset</strong> to clear (a confirmation is required).</p>
           </div>
 
           <hr class="help-divider">
@@ -644,6 +761,7 @@
           <div class="m-body" id="mBody">り (ri)  +  ょ (yo)</div>
         </div>
       </div>
+      <button class="script-switch-btn" id="scriptSwitchBtn" onclick="switchToCorresponding()"></button>
     </div>
 
     <!-- Nav -->
@@ -687,7 +805,7 @@
   <!-- ─── QUIZ MODE ─── -->
   <div id="quizMode">
     <div class="quiz-card" id="quizCard">
-      <div class="quiz-qlabel">What is the reading of this character?</div>
+      <div class="quiz-qlabel" id="quizQLabel">What is the reading of this character?</div>
       <div class="quiz-char" id="qChar">あ</div>
     </div>
     <div class="quiz-choices" id="qChoices"></div>
@@ -701,7 +819,7 @@
 
   <!-- ─── Reference Chart ─── -->
   <div class="chart-bar">
-    <button class="chart-toggle" onclick="toggleChart()">▼ Full Hiragana Reference Chart</button>
+    <button class="chart-toggle" id="chartToggleBtn" onclick="toggleChart()">▼ Full Hiragana Reference Chart</button>
     <button class="chart-snd-btn" id="chartSoundBtn" onclick="toggleChartSound()" title="Toggle sound when clicking chart cells">🔔 Chart audio</button>
   </div>
   <div class="chart-wrap" id="chartWrap"></div>
@@ -858,6 +976,145 @@ const CARDS = [
   { char:'ぴょ', romaji:'pyo', group:'PY', emoji:'🐇', mnemonic:'PYOnpyon (hopping) — the pie bounces like a bunny!' },
 ];
 
+const CARDS_KATA = [
+  // ── Vowels ──
+  { char:'ア', romaji:'a',   group:'Vowels',  emoji:'🪓', mnemonic:'An axe (AXE → "a") — two diagonal cuts with a handle, sharp and open-mouthed.' },
+  { char:'イ', romaji:'i',   group:'Vowels',  emoji:'🧍', mnemonic:'A person standing ("I" the pronoun) — upright stroke with a short arm leaning left.' },
+  { char:'ウ', romaji:'u',   group:'Vowels',  emoji:'🎩', mnemonic:'A top hat with a roof line — "ooh, what a hat!" The brim plus the crown peak.' },
+  { char:'エ', romaji:'e',   group:'Vowels',  emoji:'🏗️', mnemonic:'An I-beam (engineering girder) — two horizontal bars with a vertical pole, "eh, heavy!"' },
+  { char:'オ', romaji:'o',   group:'Vowels',  emoji:'⛏️', mnemonic:'A pickaxe driven into the ground — the cross-stroke and hook say "oh, mine!"' },
+  // ── K row ──
+  { char:'カ', romaji:'ka',  group:'K',       emoji:'🪁', mnemonic:'A kite stick plus a tail — "ka"! Two strokes angle out like a kite frame mid-flight.' },
+  { char:'キ', romaji:'ki',  group:'K',       emoji:'🔑', mnemonic:'A key hanging on a nail — three horizontal bars crossed by a vertical, like a key ring on a hook.' },
+  { char:'ク', romaji:'ku',  group:'K',       emoji:'🐦', mnemonic:'A bird\'s open beak in profile — "cu-koo!" Two strokes make a beak snapping at seeds.' },
+  { char:'ケ', romaji:'ke',  group:'K',       emoji:'🍺', mnemonic:'A keg on a stand — the vertical post and two crossing bars form a barrel mount; "ke"g!' },
+  { char:'コ', romaji:'ko',  group:'K',       emoji:'🔲', mnemonic:'A squared-off bracket — "ko"rner! Two strokes make a right angle, like a block\'s corner.' },
+  // ── S row ──
+  { char:'サ', romaji:'sa',  group:'S',       emoji:'⚔️', mnemonic:'A samurai\'s upraised sword — three strokes: two cross-cuts then a bold downward slash; "sa"murai!' },
+  { char:'シ', romaji:'shi', group:'S',       emoji:'🙂', mnemonic:'A smiling face with three dots forming a grin — "shi"ne bright! Three dots curve into a smile.' },
+  { char:'ス', romaji:'su',  group:'S',       emoji:'🥣', mnemonic:'A spoon dipping into a bowl — the top hook is the handle, the loop is the bowl; "su"per tasty.' },
+  { char:'セ', romaji:'se',  group:'S',       emoji:'💺', mnemonic:'A seat with a backrest — one horizontal bar on a vertical post, like a chair silhouette; "se"at.' },
+  { char:'ソ', romaji:'so',  group:'S',       emoji:'🧵', mnemonic:'Two stitches of thread side by side — "so" we sew! Two comma-like strokes descending.' },
+  // ── T row ──
+  { char:'タ', romaji:'ta',  group:'T',       emoji:'🦅', mnemonic:'A diving falcon (talon-first) — two strokes overhead, then a swoop; "ta"lon!' },
+  { char:'チ', romaji:'chi', group:'T',       emoji:'📣', mnemonic:'A cheerleader\'s two-stroke pom-pom frame — top lines form the pom shape, then a curling arm; "chi!"' },
+  { char:'ツ', romaji:'tsu', group:'T',       emoji:'🌊', mnemonic:'Three water drops plunging off a wave — "tsu"nami! Three comma strokes cascade down.' },
+  { char:'テ', romaji:'te',  group:'T',       emoji:'📞', mnemonic:'A TV antenna on a rooftop — the cross-stroke sits atop a tall vertical; "te"levision.' },
+  { char:'ト', romaji:'to',  group:'T',       emoji:'🦶', mnemonic:'A toe stubbed on a post — a vertical line with a short diagonal jab; "to"e, ouch!' },
+  // ── N row ──
+  { char:'ナ', romaji:'na',  group:'N',       emoji:'🔨', mnemonic:'A nail driven into a cross-beam — one horizontal bar crossed by a downward hammer stroke; "na"il.' },
+  { char:'ニ', romaji:'ni',  group:'N',       emoji:'🚪', mnemonic:'Two parallel lines — a door\'s two horizontal rails; push it with your "knee" (ni = knee).' },
+  { char:'ヌ', romaji:'nu',  group:'N',       emoji:'🍜', mnemonic:'Noodles slipping off crossed chopsticks — the cross-strokes then the curling slip; "nu"dles!' },
+  { char:'ネ', romaji:'ne',  group:'N',       emoji:'🐱', mnemonic:'A cat\'s (neko) whisker cross plus a curling tail — the top cross is the whiskers; "ne"ko!' },
+  { char:'ノ', romaji:'no',  group:'N',       emoji:'🚫', mnemonic:'A single "no" slash — just one bold diagonal line saying no; "no" means no!' },
+  // ── H row ──
+  { char:'ハ', romaji:'ha',  group:'H',       emoji:'😄', mnemonic:'Ha ha! — two legs spread wide in laughter, opening outward like a laughing stance.' },
+  { char:'ヒ', romaji:'hi',  group:'H',       emoji:'😁', mnemonic:'A grinning face — the horizontal crossbar is the mouth, the vertical is the cheek; "hee!"' },
+  { char:'フ', romaji:'fu',  group:'H',       emoji:'🪝', mnemonic:'A hook curling from a shelf — one horizontal sweeping down into a hook; "fu"ll hooker (fishing hook).' },
+  { char:'ヘ', romaji:'he',  group:'H',       emoji:'⛰️', mnemonic:'A mountain peak — identical to the hiragana! One caret stroke; "hey, that\'s a mountain!"' },
+  { char:'ホ', romaji:'ho',  group:'H',       emoji:'🎅', mnemonic:'A cross plus two legs — like a plus sign with feet; "ho ho ho!" Santa stands with arms wide.' },
+  // ── M row ──
+  { char:'マ', romaji:'ma',  group:'M',       emoji:'👩', mnemonic:'"Mama" hooks — an angled stroke with a descending hook, like a mother\'s beckoning arm.' },
+  { char:'ミ', romaji:'mi',  group:'M',       emoji:'☝️', mnemonic:'Three parallel lines — "me, me, me!" Three horizontal strokes stacked (more than ニ\'s two).' },
+  { char:'ム', romaji:'mu',  group:'M',       emoji:'🐄', mnemonic:'A cow\'s nose and mouth — a curved top line dipping into a triangular muzzle; "moo!"' },
+  { char:'メ', romaji:'me',  group:'M',       emoji:'💫', mnemonic:'A crossed X with a cap — like crossing eyes in confusion; "me" dizzy with a roof over its head.' },
+  { char:'モ', romaji:'mo',  group:'M',       emoji:'🐟', mnemonic:'"More fish!" — two horizontal bars with a curved hook below, like a fishing rod waiting for more.' },
+  // ── Y row ──
+  { char:'ヤ', romaji:'ya',  group:'Y',       emoji:'⛵', mnemonic:'A "ya"cht mast and boom — two strokes: an angled yard-arm crossing a tall mast; sail away!' },
+  { char:'ユ', romaji:'yu',  group:'Y',       emoji:'🐟', mnemonic:'A fish hook in a frame — a squared hook inside two horizontal bars; "yu" swim right in.' },
+  { char:'ヨ', romaji:'yo',  group:'Y',       emoji:'🪀', mnemonic:'A yo-yo spool — three horizontal bars on one vertical, like the axle of a spinning yo-yo; "yo!"' },
+  // ── R row ──
+  { char:'ラ', romaji:'ra',  group:'R',       emoji:'🐰', mnemonic:'A rabbit standing on a ledge — two strokes: a shelf then a bounding leg; "ra"bbit!' },
+  { char:'リ', romaji:'ri',  group:'R',       emoji:'🌿', mnemonic:'Two reeds growing — two nearly parallel strokes, like slim bamboo by a river; "ri"ver reeds.' },
+  { char:'ル', romaji:'ru',  group:'R',       emoji:'🪝', mnemonic:'A ruler\'s corner plus a hook — one angled stroke meets a downward hook; "ru"ler corner.' },
+  { char:'レ', romaji:'re',  group:'R',       emoji:'💁', mnemonic:'A single sweeping stroke — one bold slash curling up at the end, like a hand gesture; "re"ady!' },
+  { char:'ロ', romaji:'ro',  group:'R',       emoji:'🛣️', mnemonic:'A square road frame — four strokes form a rectangle; the "ro"ad loops back around.' },
+  // ── W row ──
+  { char:'ワ', romaji:'wa',  group:'W',       emoji:'💧', mnemonic:'"Wa"ter jar — a tall vertical with a curved rim at top left, like an ancient water vessel.' },
+  { char:'ヲ', romaji:'wo',  group:'W',       emoji:'😲', mnemonic:'"Wh"oa — three strokes make a surprised open face; used only as object particle, just like を.' },
+  // ── Special ──
+  { char:'ン', romaji:'n',   group:'Special', emoji:'✍️', mnemonic:'A flipped ソ — two strokes but angled upward; "n" closes a syllable; look: ン vs ソ upside-down!' },
+  { char:'ッ', romaji:'(×2)', group:'Special', emoji:'⚡', mnemonic:'A tiny ツ — three small dots that DOUBLE the next consonant; ベッド (be·d·do) = bed!' },
+  // ── G row (voiced K) ──
+  { char:'ガ', romaji:'ga',  group:'G',       emoji:'🐉', mnemonic:'The kite stick (カ) gets two dakuten horns — a gargoyle boards the kite; "ga"rgoyle!' },
+  { char:'ギ', romaji:'gi',  group:'G',       emoji:'🎸', mnemonic:'The key rack (キ) gets two vibrating dots — now it plays "gi"tar; dots are the strings buzzing.' },
+  { char:'グ', romaji:'gu',  group:'G',       emoji:'💧', mnemonic:'The beak (ク) gets two bubbling dots — "gu"rgling throat; beak full of water.' },
+  { char:'ゲ', romaji:'ge',  group:'G',       emoji:'🌋', mnemonic:'The keg (ケ) erupts with two dots — "ge"yser! Pop! The dots are erupting bubbles.' },
+  { char:'ゴ', romaji:'go',  group:'G',       emoji:'♟️', mnemonic:'The corner bracket (コ) gets two dots — a Go board move; "go" — game on!' },
+  // ── Z row (voiced S) ──
+  { char:'ザ', romaji:'za',  group:'Z',       emoji:'⚡', mnemonic:'The samurai sword (サ) zaps two lightning dots — "za"p! Blade crackles with electricity.' },
+  { char:'ジ', romaji:'ji',  group:'Z',       emoji:'🔔', mnemonic:'The smiley (シ) gets two jingle dots — "ji"ngle bells hanging from the smile tip.' },
+  { char:'ズ', romaji:'zu',  group:'Z',       emoji:'🦁', mnemonic:'The spoon-bowl (ス) with two roaring dots — "zu"(zoo) — lions roar from the bowl!' },
+  { char:'ゼ', romaji:'ze',  group:'Z',       emoji:'🧘', mnemonic:'The chair (セ) with two floating dots — "ze"n monk levitating; dots hover peacefully.' },
+  { char:'ゾ', romaji:'zo',  group:'Z',       emoji:'🧟', mnemonic:'The two stitches (ソ) get zombie dots — "zo"mbie! The stitches lurch forward.' },
+  // ── D row (voiced T) ──
+  { char:'ダ', romaji:'da',  group:'D',       emoji:'💃', mnemonic:'The falcon (タ) breaks into a "da"nce — dots are its flapping wings mid-jig.' },
+  { char:'ヂ', romaji:'ji',  group:'D',       emoji:'🎭', mnemonic:'The cheerleader (チ) in disguise — same sound as ジ; dots are the drama masks.' },
+  { char:'ヅ', romaji:'zu',  group:'D',       emoji:'🏜️', mnemonic:'The tsunami drops (ツ) hit a dune — "du"ne wave; same sound as ズ.' },
+  { char:'デ', romaji:'de',  group:'D',       emoji:'🖥️', mnemonic:'The antenna (テ) becomes a desk lamp — dots are its glow; "de"sk light.' },
+  { char:'ド', romaji:'do',  group:'D',       emoji:'🍩', mnemonic:'The stubbed toe (ト) has a donut stuck on it — "do"nut toe; sweet and sore!' },
+  // ── B row (voiced H) ──
+  { char:'バ', romaji:'ba',  group:'B',       emoji:'🐑', mnemonic:'"Ha!" legs (ハ) become a "ba"a-ing sheep — dots are its eyes blinking in surprise.' },
+  { char:'ビ', romaji:'bi',  group:'B',       emoji:'🐝', mnemonic:'The grin face (ヒ) grows buzzing dots — a "bi"g bee; dots are its wings.' },
+  { char:'ブ', romaji:'bu',  group:'B',       emoji:'💨', mnemonic:'The fishing hook (フ) puffs two smoke dots — "bu"bble smoke from a geyser.' },
+  { char:'ベ', romaji:'be',  group:'B',       emoji:'🔔', mnemonic:'The mountain peak (ヘ) gets a "be"ll hung from it — two dots are the clappers ringing.' },
+  { char:'ボ', romaji:'bo',  group:'B',       emoji:'⛵', mnemonic:'The cross-legs (ホ) sail away — "bo"at; dots are the waves beneath Santa\'s hull.' },
+  // ── P row (semi-voiced H, handakuten ゜) ──
+  { char:'パ', romaji:'pa',  group:'P',       emoji:'🎉', mnemonic:'"Ha" legs (ハ) + circle = "pa"rty popper! A perfect round bubble pops confetti.' },
+  { char:'ピ', romaji:'pi',  group:'P',       emoji:'🥧', mnemonic:'The grin (ヒ) + circle = "pi"e — a perfectly round smiling pie (π).' },
+  { char:'プ', romaji:'pu',  group:'P',       emoji:'💭', mnemonic:'The hook (フ) + circle = "pu"ff — a perfect smoke ring floats up.' },
+  { char:'ペ', romaji:'pe',  group:'P',       emoji:'🐧', mnemonic:'The peak (ヘ) + circle = "pe"nguin — a round belly on the mountain beak.' },
+  { char:'ポ', romaji:'po',  group:'P',       emoji:'🎈', mnemonic:'The cross-legs (ホ) + circle = "po"p! Santa\'s balloon goes pop!' },
+  // ── KY combos ──
+  { char:'キャ', romaji:'kya', group:'KY', emoji:'🚣', mnemonic:'KYAku (guest) — the key (キ) welcomes a guest aboard its kayak (ャ small sail).' },
+  { char:'キュ', romaji:'kyu', group:'KY', emoji:'🐕', mnemonic:'KYUu! — a puppy yelps for the key (キ); ュ is its little tail wagging.' },
+  { char:'キョ', romaji:'kyo', group:'KY', emoji:'⛩️', mnemonic:'KYOto — carry your key (キ) to Japan\'s ancient capital; ョ is the torii gate frame.' },
+  // ── SH combos ──
+  { char:'シャ', romaji:'sha', group:'SH', emoji:'🦈', mnemonic:'SHArk — the smile (シ) now belongs to a shark (ャ is the fin).' },
+  { char:'シュ', romaji:'shu', group:'SH', emoji:'🎨', mnemonic:'SHUmi (hobby) — the smile (シ) is your creative passion; ュ is the paint swirl.' },
+  { char:'ショ', romaji:'sho', group:'SH', emoji:'🏯', mnemonic:'SHOgun — the smile (シ) commands like a warlord; ョ is the castle gate frame.' },
+  // ── CH combos ──
+  { char:'チャ', romaji:'cha', group:'CH', emoji:'🍵', mnemonic:'CHA (tea) — the cheerleader (チ) serves green tea; ャ is the teacup.' },
+  { char:'チュ', romaji:'chu', group:'CH', emoji:'💋', mnemonic:'CHUu (kiss) — the cheerleader (チ) blows a kiss; ュ is the lip pucker.' },
+  { char:'チョ', romaji:'cho', group:'CH', emoji:'🦋', mnemonic:'CHOu (butterfly) — the cheerleader (チ) chases a butterfly; ョ is the wings.' },
+  // ── NY combos ──
+  { char:'ニャ', romaji:'nya', group:'NY', emoji:'🐱', mnemonic:'NYAn — the door rails (ニ) open and a cat meows in; ャ is the cat\'s flicking ear.' },
+  { char:'ニュ', romaji:'nyu', group:'NY', emoji:'🥛', mnemonic:'NYUu (enter) — milk squeezes through the rails (ニ); ュ is the milk stream.' },
+  { char:'ニョ', romaji:'nyo', group:'NY', emoji:'🌊', mnemonic:'NYOro (slithering) — something slips through the rails (ニ); ョ is the serpentine trail.' },
+  // ── HY combos ──
+  { char:'ヒャ', romaji:'hya', group:'HY', emoji:'💯', mnemonic:'HYAku (100) — the grin (ヒ) scores one hundred percent; ャ is the "1" digit.' },
+  { char:'ヒュ', romaji:'hyu', group:'HY', emoji:'💨', mnemonic:'HYUu — a gust of wind whooshes past the grin (ヒ); ュ is the wind curl.' },
+  { char:'ヒョ', romaji:'hyo', group:'HY', emoji:'😜', mnemonic:'HYOkkin (funny guy) — the grin (ヒ) pops up; ョ is the punchline frame.' },
+  // ── MY combos ──
+  { char:'ミャ', romaji:'mya', group:'MY', emoji:'😸', mnemonic:'MYAu — three lines (ミ) purr into a yowl; ャ is the cat\'s open mouth.' },
+  { char:'ミュ', romaji:'myu', group:'MY', emoji:'🎵', mnemonic:'MYUsic — three lines (ミ) form a musical staff; ュ is the quarter note.' },
+  { char:'ミョ', romaji:'myo', group:'MY', emoji:'🤔', mnemonic:'MYOu (strange) — three lines (ミ) tilt puzzled; ョ is the question frame.' },
+  // ── RY combos ──
+  { char:'リャ', romaji:'rya', group:'RY', emoji:'📝', mnemonic:'RYAku (abbreviation) — the reeds (リ) write shorthand; ャ is the abbreviated syllable.' },
+  { char:'リュ', romaji:'ryu', group:'RY', emoji:'🐉', mnemonic:'RYUu (dragon) — a dragon rises from the reeds (リ); ュ is the curling tail.' },
+  { char:'リョ', romaji:'ryo', group:'RY', emoji:'🧳', mnemonic:'RYOkou (travel) — the reeds (リ) pack bags; ョ is the suitcase frame.' },
+  // ── GY combos (voiced) ──
+  { char:'ギャ', romaji:'gya', group:'GY', emoji:'😱', mnemonic:'GYA! — the guitar (ギ) gives a shocking fright; ャ is the scream mouth.' },
+  { char:'ギュ', romaji:'gyu', group:'GY', emoji:'🥩', mnemonic:'GYUudon (beef bowl) — the guitar (ギ) player devours gyudon; ュ is the chopstick.' },
+  { char:'ギョ', romaji:'gyo', group:'GY', emoji:'🥟', mnemonic:'GYOza (dumplings) — the guitar (ギ) player fries gyoza; ョ is the dumpling wrapper.' },
+  // ── J combos ──
+  { char:'ジャ', romaji:'ja',  group:'J',  emoji:'✌️', mnemonic:'JAnken (rock-paper-scissors) — the jingling smile (ジ) plays jan-ken-pon; ャ is the scissors.' },
+  { char:'ジュ', romaji:'ju',  group:'J',  emoji:'🧃', mnemonic:'JUusu (juice) — the jingling smile (ジ) pours juice; ュ is the juice box straw.' },
+  { char:'ジョ', romaji:'jo',  group:'J',  emoji:'👩', mnemonic:'JOsei (woman) — a wise woman jingles (ジ) her keys; ョ is the door she enters.' },
+  // ── DY combos (voiced D — same sound as J combos) ──
+  { char:'ヂャ', romaji:'ja',  group:'DY', emoji:'🎭', mnemonic:'Same sound as ジャ — the cheerleader (ヂ) twin takes the stage; ャ is the theater spotlight.' },
+  { char:'ヂュ', romaji:'ju',  group:'DY', emoji:'🎪', mnemonic:'Same sound as ジュ — the circus jug-juggler (ヂ) in disguise; ュ is the juggling arc.' },
+  { char:'ヂョ', romaji:'jo',  group:'DY', emoji:'🃏', mnemonic:'Same sound as ジョ — the joker (ヂ) in costume; ョ is the playing card frame.' },
+  // ── BY combos (voiced B) ──
+  { char:'ビャ', romaji:'bya', group:'BY', emoji:'🌟', mnemonic:'BYAku (white) — the bee (ビ) flashes brilliant white; ャ is the flash burst.' },
+  { char:'ビュ', romaji:'byu', group:'BY', emoji:'🌬️', mnemonic:'BYUu — the bee (ビ) zooms with a rush of wind; ュ is the speed streak.' },
+  { char:'ビョ', romaji:'byo', group:'BY', emoji:'🤒', mnemonic:'BYOki (sick) — the bee (ビ) feels ill; ョ is the hospital bed frame.' },
+  // ── PY combos (handakuten P) ──
+  { char:'ピャ', romaji:'pya', group:'PY', emoji:'🎊', mnemonic:'PYA! — the party pie (ピ) fires with a sharp burst; ャ is the confetti spray.' },
+  { char:'ピュ', romaji:'pyu', group:'PY', emoji:'🚀', mnemonic:'PYUu — the pie (ピ) launches like a rocket; ュ is the rocket exhaust trail.' },
+  { char:'ピョ', romaji:'pyo', group:'PY', emoji:'🐇', mnemonic:'PYOnpyon (hopping) — the pie (ピ) bounces like a bunny; ョ is the landing pad.' },
+];
+
 const GROUPS = [
   'All', 'Vowels', 'K', 'S', 'T', 'N', 'H', 'M', 'Y', 'R', 'W', 'Special',
   '|', 'Dakuten', 'G', 'Z', 'D', 'B', 'P',
@@ -871,12 +1128,15 @@ function groupLabel(g) {
   return g;
 }
 
+function activeCards() { return st.script === 'kata' ? CARDS_KATA : CARDS; }
+
 // ─────────────────────────────────────────────
 //  STATE
 // ─────────────────────────────────────────────
 const st = {
   mode: 'flash',
-  filter: 'All',
+  script: 'hira',
+  filters: new Set(['All']),
   shuffle: false,
   reviewOnly: false,
   hideRomaji: false,
@@ -892,11 +1152,41 @@ const st = {
   deck: [],
   order: [],
   known: {},
+  knownHira: {},
+  knownKata: {},
   quiz: { correct: 0, total: 0, streak: 0, answered: false, card: null },
 };
 
-try { const s = localStorage.getItem('hira-v2'); if (s) st.known = JSON.parse(s); } catch(e){}
-function save() { try { localStorage.setItem('hira-v2', JSON.stringify(st.known)); } catch(e){} }
+try {
+  const h = localStorage.getItem('hira-v2'); if (h) st.knownHira = JSON.parse(h);
+  const k = localStorage.getItem('kata-v1'); if (k) st.knownKata = JSON.parse(k);
+} catch(e) {}
+st.known = st.knownHira;
+
+function save() {
+  try {
+    localStorage.setItem('hira-v2', JSON.stringify(st.knownHira));
+    localStorage.setItem('kata-v1', JSON.stringify(st.knownKata));
+  } catch(e) {}
+}
+
+function setScript(s) {
+  if (st.script === s) return;
+  if (st.autoplay) toggleAutoplay();
+  save();
+  st.script = s;
+  st.known = s === 'hira' ? st.knownHira : st.knownKata;
+  st.quiz = { correct:0, total:0, streak:0, answered:false, card:null };
+  st.filters = new Set(['All']);
+  document.getElementById('sBtnHira').classList.toggle('active', s === 'hira');
+  document.getElementById('sBtnKata').classList.toggle('active', s === 'kata');
+  document.getElementById('subtitle').textContent = s === 'hira'
+    ? 'Learn all 108 hiragana — dakuten, combos & more'
+    : 'Learn all 108 katakana — dakuten, combos & more';
+  buildFilterTabs(); buildDeck(); buildChart();
+  st.idx = 0; render(0); updateProgress();
+  if (st.mode === 'quiz') nextQuiz();
+}
 
 function toggleHelp() {
   document.getElementById('helpDropdown').classList.toggle('open');
@@ -910,7 +1200,8 @@ document.addEventListener('click', e => {
 
 function resetProgress() {
   if (!confirm('Reset all progress? All "known" marks will be cleared.')) return;
-  st.known = {};
+  if (st.script === 'hira') { st.knownHira = {}; st.known = st.knownHira; }
+  else { st.knownKata = {}; st.known = st.knownKata; }
   save();
   buildDeck();
   st.idx = 0;
@@ -921,12 +1212,15 @@ function resetProgress() {
 //  DECK MANAGEMENT
 // ─────────────────────────────────────────────
 function buildDeck() {
-  let deck = CARDS.filter(c => {
-    if (st.filter === 'All') return true;
-    if (st.filter === '⭐ Review') return !st.known[c.char];
-    if (st.filter === 'Dakuten') return ['G','Z','D','B','P'].includes(c.group);
-    if (st.filter === 'Combos') return ['KY','SH','CH','NY','HY','MY','RY','GY','J','DY','BY','PY'].includes(c.group);
-    return c.group === st.filter;
+  let deck = activeCards().filter(c => {
+    for (const f of st.filters) {
+      if (f === 'All') return true;
+      if (f === '⭐ Review' && !st.known[c.char]) return true;
+      if (f === 'Dakuten' && ['G','Z','D','B','P'].includes(c.group)) return true;
+      if (f === 'Combos' && ['KY','SH','CH','NY','HY','MY','RY','GY','J','DY','BY','PY'].includes(c.group)) return true;
+      if (c.group === f) return true;
+    }
+    return false;
   });
   if (st.reviewOnly) deck = deck.filter(c => !st.known[c.char]);
   st.deck = deck;
@@ -977,7 +1271,8 @@ function render(dir = 0) {
           <div class="m-label" id="mLabel"></div>
           <div class="m-body" id="mBody"></div>
         </div>
-      </div>`;
+      </div>
+      <button class="script-switch-btn" id="scriptSwitchBtn" onclick="switchToCorresponding()"></button>`;
   }
   // Animate
   if (dir !== 0) {
@@ -998,8 +1293,8 @@ function render(dir = 0) {
   if (COMBO_GROUPS.includes(c.group)) {
     const base = c.char[0];
     const small = c.char[1];
-    const baseRomaji = CARDS.find(x => x.char === base)?.romaji ?? '?';
-    const smallRomaji = { 'ゃ':'ya', 'ゅ':'yu', 'ょ':'yo' }[small] ?? '?';
+    const baseRomaji = activeCards().find(x => x.char === base)?.romaji ?? '?';
+    const smallRomaji = { 'ゃ':'ya', 'ゅ':'yu', 'ょ':'yo', 'ャ':'ya', 'ュ':'yu', 'ョ':'yo' }[small] ?? '?';
     document.getElementById('mLabel').textContent = 'Pronunciation';
     document.getElementById('mEmoji').textContent = base;
     document.getElementById('mBody').textContent  = `${base} (${baseRomaji})  +  ${small} (${smallRomaji})`;
@@ -1020,12 +1315,19 @@ function render(dir = 0) {
   kb.textContent = isKnown ? '✓ Known!' : '✓ Know it';
   kb.className = 'know-btn' + (isKnown ? ' active' : '');
 
+  const otherCards = st.script === 'hira' ? CARDS_KATA : CARDS;
+  const cardIdx = activeCards().indexOf(c);
+  const otherChar = cardIdx >= 0 ? otherCards[cardIdx].char : '';
+  const otherLabel = st.script === 'hira' ? 'Katakana' : 'Hiragana';
+  const ssBtn = document.getElementById('scriptSwitchBtn');
+  if (ssBtn) ssBtn.innerHTML = `↔ <span class="sw-char">${otherChar}</span> · view in ${otherLabel}`;
+
   updateProgress();
   refreshChart();
 }
 
 function updateProgress() {
-  const total = CARDS.length;
+  const total = activeCards().length;
   const known = Object.values(st.known).filter(Boolean).length;
   const pct = Math.round(known / total * 100);
   document.getElementById('progLabel').textContent = `${known} / ${total} learned`;
@@ -1065,7 +1367,7 @@ function ttsText(char) {
 }
 
 function playAudio(charOverride) {
-  const c = charOverride ? CARDS.find(x => x.char === charOverride) : card();
+  const c = charOverride ? activeCards().find(x => x.char === charOverride) : card();
   if (!c) return;
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(ttsText(c.char));
@@ -1184,9 +1486,22 @@ function toggleAutoSound() {
 }
 
 function setFilter(f) {
-  st.filter = f;
-  document.querySelectorAll('.ftab').forEach(b => b.classList.toggle('active', b.dataset.f === f));
-  buildDeck(); st.idx = 0; render(0);
+  if (f === 'All' || f === '⭐ Review') {
+    st.filters = new Set([f]);
+  } else {
+    st.filters.delete('All');
+    st.filters.delete('⭐ Review');
+    if (st.filters.has(f)) {
+      st.filters.delete(f);
+      if (st.filters.size === 0) st.filters.add('All');
+    } else {
+      st.filters.add(f);
+    }
+  }
+  document.querySelectorAll('.ftab').forEach(b => b.classList.toggle('active', st.filters.has(b.dataset.f)));
+  buildDeck(); st.idx = 0;
+  if (st.mode === 'quiz') nextQuiz();
+  else render(0);
 }
 
 function scrollFilter(dir) {
@@ -1204,7 +1519,7 @@ function buildFilterTabs() {
       return;
     }
     const b = document.createElement('button');
-    b.className = 'ftab' + (g === 'All' ? ' active' : '');
+    b.className = 'ftab' + (st.filters.has(g) ? ' active' : '');
     b.dataset.f = g;
     b.textContent = (['K','S','T','N','H','M','Y','R','W','G','Z','D','B','P'].includes(g)) ? g + ' row' : g;
     b.onclick = () => setFilter(g);
@@ -1232,17 +1547,24 @@ function nextQuiz() {
   st.quiz.answered = false;
   document.getElementById('qNext').style.display = 'none';
 
-  // Weight toward unknown cards
-  const unknown = CARDS.filter(c => !st.known[c.char]);
-  const pool = unknown.length >= 4 ? unknown : CARDS;
+  // Use filtered deck as the question pool; fall back to full set if empty
+  const deckPool = st.deck.length > 0 ? st.deck : activeCards();
+  const unknown = deckPool.filter(c => !st.known[c.char]);
+  const pool = unknown.length >= 4 ? unknown : deckPool;
   const correct = pool[Math.floor(Math.random() * pool.length)];
   st.quiz.card = correct;
+
+  // Update label to show active filters
+  const filterLabel = st.filters.has('All')
+    ? '' : ' · ' + [...st.filters].map(f => f === '⭐ Review' ? '⭐ Review' : groupLabel(f)).join(', ');
+  document.getElementById('quizQLabel').textContent =
+    `What is the reading of this character?${filterLabel}`;
 
   document.getElementById('qChar').textContent = correct.char;
   document.getElementById('quizCard').className = 'quiz-card';
 
-  // Build 4 choices
-  const wrongs = CARDS.filter(c => c.romaji !== correct.romaji)
+  // Wrong choices from full active set to ensure enough distractors
+  const wrongs = activeCards().filter(c => c.romaji !== correct.romaji)
     .sort(() => Math.random() - 0.5).slice(0, 3);
   const opts = [...wrongs, correct].sort(() => Math.random() - 0.5);
 
@@ -1292,6 +1614,9 @@ function handleQuiz(isCorrect, btn, correctRomaji) {
 function toggleChart() {
   const w = document.getElementById('chartWrap');
   w.classList.toggle('open');
+  const isOpen = w.classList.contains('open');
+  const label = st.script === 'kata' ? 'Katakana' : 'Hiragana';
+  document.getElementById('chartToggleBtn').textContent = `${isOpen?'▲':'▼'} Full ${label} Reference Chart`;
 }
 
 function toggleChartSound() {
@@ -1304,7 +1629,7 @@ function toggleChartSound() {
 function buildChart() {
   const wrap = document.getElementById('chartWrap');
   wrap.innerHTML = '';
-  const groups = [...new Set(CARDS.map(c => c.group))];
+  const groups = [...new Set(activeCards().map(c => c.group))];
   groups.forEach(g => {
     const lbl = document.createElement('div');
     lbl.className = 'chart-group-label';
@@ -1313,7 +1638,7 @@ function buildChart() {
 
     const grid = document.createElement('div');
     grid.className = 'chart-grid';
-    CARDS.filter(c => c.group === g).forEach(c => {
+    activeCards().filter(c => c.group === g).forEach(c => {
       const cell = document.createElement('div');
       cell.className = 'chart-cell' + (st.known[c.char] ? ' known' : '');
       cell.dataset.char = c.char;
@@ -1323,7 +1648,7 @@ function buildChart() {
       wrap.appendChild(cell);
     });
     // Pad to row-of-5 grid
-    const r = CARDS.filter(c => c.group === g).length % 5;
+    const r = activeCards().filter(c => c.group === g).length % 5;
     if (r !== 0) for (let i = 0; i < 5 - r; i++) {
       const ph = document.createElement('div'); wrap.appendChild(ph);
     }
@@ -1349,13 +1674,60 @@ document.addEventListener('keydown', e => {
 });
 
 // ─────────────────────────────────────────────
+//  SCRIPT SWITCH (from card)
+// ─────────────────────────────────────────────
+function switchToCorresponding() {
+  const c = card();
+  if (!c) return;
+  const cardIdx = activeCards().indexOf(c);
+  const newScript = st.script === 'hira' ? 'kata' : 'hira';
+  setScript(newScript); // resets filter to All, rebuilds deck
+  // Find the position in st.order that maps to cardIdx
+  const oi = st.order.indexOf(cardIdx);
+  st.idx = oi >= 0 ? oi : 0;
+  render(0);
+}
+
+// ─────────────────────────────────────────────
+//  WELCOME & NAME
+// ─────────────────────────────────────────────
+function applyUserName() {
+  const name = localStorage.getItem('kana-name') || '';
+  document.getElementById('userNamePrefix').textContent = name ? name + '\u2019s ' : '';
+}
+
+function closeWelcome() {
+  const name = document.getElementById('nameInput').value.trim();
+  if (name) localStorage.setItem('kana-name', name);
+  else localStorage.removeItem('kana-name');
+  if (document.getElementById('dontShowAgain').checked) {
+    localStorage.setItem('kana-welcome-seen', '1');
+  }
+  document.getElementById('welcomeOverlay').classList.remove('open');
+  applyUserName();
+}
+
+document.getElementById('nameInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') closeWelcome();
+});
+
+// ─────────────────────────────────────────────
 //  INIT
 // ─────────────────────────────────────────────
+st.known = st.knownHira;
 buildFilterTabs();
 buildDeck();
 buildChart();
 render(0);
 updateProgress();
+
+// Prefill name input and show welcome if needed
+const savedName = localStorage.getItem('kana-name') || '';
+if (savedName) document.getElementById('nameInput').value = savedName;
+applyUserName();
+if (!localStorage.getItem('kana-welcome-seen')) {
+  document.getElementById('welcomeOverlay').classList.add('open');
+}
 </script>
 
 
